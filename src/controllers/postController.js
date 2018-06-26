@@ -12,6 +12,10 @@ function PostController(){
                 res.send(posts.map(post => serialize.getPost(post)));
         });
     },
+    this.getPostByUsername = (req, res) => {
+        let {error} = validate.byUsername(req.body, res);
+        if(error) return this.returnError(error, res);
+    },
     this.addPost = (req, res) => {
         let {error} = validate.byPost(req.body, res);
         if(error) return this.returnError(error, res);

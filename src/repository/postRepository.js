@@ -10,7 +10,21 @@ const PostSchema = new mongoose.Schema({
     title: {type: String, required: true},
     topic: {type: String, required: true},
     message: {type: String, required: true},
-    tags: {type: String, required: false}
+    favorited: {type: Boolean, default: false},
+    createdAt: {type: Date, default: Date.now},
+    updatedAt: {type: Date, default: Date.now},
+    tags: {type: String, required: false},
+    author: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'users'
+    },
+    comments: [{
+        text: String,
+        author: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'users'
+        }
+    }]
 });
 
 const PostRepository = mongoose.model('posts', PostSchema);

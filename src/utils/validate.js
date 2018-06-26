@@ -26,7 +26,7 @@ function Validate(){
             title: Joi.string().required(),
             topic: Joi.string().required(),
             message: Joi.string().required(),
-            tags: Joi.string(),
+            tags: Joi.string()
         }
         return Joi.validate(post, schema);
     },
@@ -35,9 +35,14 @@ function Validate(){
             email: Joi.string().required(),
             password: Joi.string().required()
         }
-        // return Joi.validate(user, schema);
         return Joi.validate(user, schema);
-    }
+    },
+    this.byUsername = (user) => {
+        const schema = {
+            name: Joi.string().required()
+        }
+        return Joi.validate(user, schema);
+    },
 }
 
 module.exports.Validate = new Validate();

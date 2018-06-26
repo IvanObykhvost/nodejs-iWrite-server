@@ -23,6 +23,8 @@ app.post('/api/login', UserController.loginUser);
 
 //PostController
 app.get('/api/posts', PostController.getAllPosts);
+//app.get('/api/post/:id', PostController.getPost);
+app.get('/api/post/:username', PostController.getPostByUsername);
 app.post('/api/post', PostController.addPost);
 app.put('/api/post/:id', PostController.updatePost);
 
