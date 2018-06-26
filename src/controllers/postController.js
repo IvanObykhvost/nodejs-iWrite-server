@@ -38,8 +38,7 @@ function PostController(){
             })
     },
     this.addPost = (req, res) => {
-        const token = {token :req.headers.authorization};
-        let {error: errorToken} = validate.byToken(token);
+        let {error: errorToken, token} = validate.byToken({token : req.headers.authorization});
         if(errorToken) return this.returnError(errorToken, res);
 
         let {error} = validate.byPost(req.body);
@@ -47,6 +46,7 @@ function PostController(){
 
         UserController.getUserByParams(token)
             .then(user => {
+                if(!user) return this.returnError(ERRORS.NO_FOUND_USER, res);
                 let post = new PostRepository({
                     ...req.body,
                     author: user._id
