@@ -42,7 +42,7 @@ function Validate(){
             name: Joi.string().required()
         }
         return Joi.validate(user, schema);
-    },
+    }
 }
 
 module.exports.Validate = new Validate();

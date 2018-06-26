@@ -1,5 +1,5 @@
 const UserRepository = require('../repository/userRepository');
-const ERRORS = require('../constants');
+const ERRORS = require('../constants').ERRORS;
 const validate = require('../utils/validate').Validate;
 
 
@@ -52,6 +52,7 @@ function UserController(){
             }
         });
     },
+    
     this.saveUser = (req, res) => { 
         let {error} = validate.byLogin(req.body, res);
         if(error) return this.returnError(error, res);
@@ -62,6 +63,19 @@ function UserController(){
         //     else
         //         res.send(serialize.getUser(user));
         // });
+    },
+
+    /**
+    * Use by look for user
+    * @method  getUserByParams
+    * @param {Object} findParams object by find {name : 'Jack'}.
+    * @returns {Object} user or error
+    */
+    this.getUserByParams = (findParams) => {
+        return UserRepository.findOne(findParams, (error, user) => {
+            if(error) return error;
+            else return user;
+        });
     },
     this.returnError = (error, res) => {
         let message = error;
