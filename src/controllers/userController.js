@@ -1,10 +1,9 @@
 const UserRepository = require('../repository/userRepository');
 const ERRORS = require('../constants').ERRORS;
 const validate = require('../utils/validate').Validate;
-
+const serialize = require('../utils/serialize').Serialize;
 
 function UserController(){
-    let serialize = new Serialize();
     this.getUserByToken = (req, res) => {
         const token = {token :req.headers.authorization};
         let {error} = validate.byToken(token);
@@ -83,27 +82,6 @@ function UserController(){
             message = error.details[0].message;
         }
         return res.send(serialize.error(message));
-    }
-}
-
-function Serialize(){
-    this.getUser = (user) => {
-        return { 
-            user: {
-                name: user.name,
-                email: user.email,
-                createdAt: user.createdAt,
-                updatedAt: user.updatedAt,
-                bio: user.bio,
-                image: user.image,
-                token:  user.token
-            }
-        };
-    },
-    this.error = (error) => {
-        return {
-            error
-        }
     }
 }
 

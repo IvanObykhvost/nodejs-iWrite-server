@@ -2,9 +2,9 @@ const PostRepository = require('../repository/postRepository');
 const UserController = require('../controllers/userController');
 const ERRORS = require('../constants').ERRORS;
 const validate = require('../utils/validate').Validate;
+const serialize = require('../utils/serialize').Serialize;
 
 function PostController(){
-    let serialize = new Serialize();
     this.getAllPosts = (req, res) => {
         PostRepository.find({}, (error, posts) => {
             if(error) 
@@ -16,9 +16,9 @@ function PostController(){
     this.getPostsByUsername = (req, res) => {
         let {error} = validate.byUsername(req.params);
         if(error) return this.returnError(error, res);
-        let paramName = {name: req.params.name};
 
-        UserController.getUserByParams(paramName)
+        const name = req.params.name;
+        UserController.getUserByParams({name})
             .then(user => {
                 if(!user) return this.returnError(ERRORS.NO_FOUND_USER, res);
                 PostRepository.find({author : user.id})
@@ -27,7 +27,7 @@ function PostController(){
                         if(error) this.returnError(ERRORS.NO_POSTS);
                         
                         if(posts.legth === 0){
-                            res.send('No posts yes');
+                            res.send('No posts yet');
                         } else {
                             res.send(posts.map(post => serialize.getPost(post)));
                         }
@@ -38,13 +38,11 @@ function PostController(){
             })
     },
     this.addPost = (req, res) => {
-        let {error: errorToken, token} = validate.byToken({token : req.headers.authorization});
-        if(errorToken) return this.returnError(errorToken, res);
-
+        const token = req.headers.authorization;
         let {error} = validate.byPost(req.body);
         if(error) return this.returnError(error, res);
 
-        UserController.getUserByParams(token)
+        UserController.getUserByParams({token})
             .then(user => {
                 if(!user) return this.returnError(ERRORS.NO_FOUND_USER, res);
                 let post = new PostRepository({
@@ -79,23 +77,6 @@ function PostController(){
             message = error.details[0].message;
         }
         return res.send(serialize.error(message));
-    }
-}
-
-function Serialize(){
-    this.getPost = (post) => {
-        return {
-            id: post.id,
-            title: post.title,
-            topic: post.topic,
-            message: post.message,
-            tags: post.tags,
-        }
-    },
-    this.error = (error) => {
-        return {
-            error
-        }
     }
 }
 
