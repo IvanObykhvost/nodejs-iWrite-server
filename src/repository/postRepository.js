@@ -27,6 +27,10 @@ const PostSchema = new mongoose.Schema({
     }]
 });
 
+PostSchema.pre('find', function() {
+    this.populate('users');
+});
+
 const PostRepository = mongoose.model('posts', PostSchema);
 
 module.exports = PostRepository;

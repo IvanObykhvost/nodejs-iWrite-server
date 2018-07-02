@@ -12,9 +12,7 @@ function PostController(){
         name = req.query.favorited;
         if(name) return this.getPostsByFavorited(res, name);
 
-        PostRepository.find({})
-            .populate('author')
-            .exec((error, posts) => {
+        PostRepository.find({}, (error, posts) => {
             if(error) 
                 this.returnError(ERRORS.NO_POSTS);
             else
@@ -28,27 +26,17 @@ function PostController(){
         UserController.getUserByParams({name})
             .then(user => {
                 if(!user) return this.returnError(ERRORS.NO_FOUND_USER, res);
+
                 this.getPostsByParams({author : user.id})
                     .then(posts => {
                         if(error) this.returnError(ERRORS.NO_POSTS);
                         
-                        if(posts.legth === 0){
+                        if(posts.length === 0){
                             res.send('No posts yet');
                         } else {
                             res.send(posts.map(post => serialize.getPost(post)));
                         }
                     })
-                // PostRepository.find({author : user.id})
-                //     .populate('author')
-                //     .exec((error, posts) => {
-                //         if(error) this.returnError(ERRORS.NO_POSTS);
-                        
-                //         if(posts.legth === 0){
-                //             res.send('No posts yet');
-                //         } else {
-                //             res.send(posts.map(post => serialize.getPost(post)));
-                //         }
-                //     });
             })
             .catch(e => {
                 return this.returnError(e.message, res);
@@ -61,17 +49,17 @@ function PostController(){
         UserController.getUserByParams({name})
             .then(user => {
                 if(!user) return this.returnError(ERRORS.NO_FOUND_USER, res);
-                PostRepository.find({author : user.id, favorited: true})
-                    .populate('author')
-                    .exec((error, posts) => {
+
+                this.getPostsByParams({author : user.id, favorited: true})
+                    .then(posts => {
                         if(error) this.returnError(ERRORS.NO_POSTS);
                         
-                        if(posts.legth === 0){
+                        if(posts.length === 0){
                             res.send('No posts yet');
                         } else {
                             res.send(posts.map(post => serialize.getPost(post)));
                         }
-                    });
+                    })
             })
             .catch(e => {
                 return this.returnError(e.message, res);
@@ -121,13 +109,16 @@ function PostController(){
     * @returns {Object} user or error
     */
    this.getPostsByParams = (findParams) => {
-        const posts =  PostRepository.find(findParams)
-            .populate('author');
-
-        return  posts.exec((error, posts) => {
-                if(error) return error;
-                else return posts;
-        });
+        //  PostRepository.find(findParams)
+        //     .populate('author')
+        //     .exec((error, posts) => {
+        //         if(error) return error;
+        //         else return posts;
+        // });
+        return PostRepository.find(findParams, (error, posts) => {
+            if(error) return error;
+            else return posts;
+        })
     },
     this.returnError = (error, res) => {
         let message = error;

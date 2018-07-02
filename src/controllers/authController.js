@@ -5,8 +5,8 @@ const serialize = require('../utils/serialize').Serialize;
 
 function AuthController(){
     this.authentication = (req, res, next) => {
-        const token = {token: req.headers.authorization};
-        let {error} = validate.byToken(token);
+        const token = req.headers.authorization;
+        let {error} = validate.byToken({token});
         if(error) return this.returnError(error, res);
         next();
     },

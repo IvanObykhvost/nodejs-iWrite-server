@@ -8,6 +8,8 @@ function Validate(){
         return Joi.validate(id, schema);
     },
     this.byToken = (token) => {
+        if(token === "null") token = null;
+        
         const schema = {
             token: Joi.string().required(),
         }
@@ -15,15 +17,15 @@ function Validate(){
     },
     this.byRegister = (user) => {
         const schema = {
-            name: Joi.string().required(),
-            email: Joi.string().required(),
-            password: Joi.string().required(),
+            name: Joi.string().alphanum().required(),
+            email: Joi.string().email().required(),
+            password: Joi.string().regex(/^[a-zA-Z0-9]{3,30}$/).required()
         }
         return Joi.validate(user, schema);
     },
     this.byPost = (post) => {
         const schema = {
-            title: Joi.string().required(),
+            title: Joi.string().alphanum().required(),
             topic: Joi.string().required(),
             message: Joi.string().required(),
             tags: Joi.string()
@@ -32,8 +34,8 @@ function Validate(){
     },
     this.byLogin = (user) => {
         const schema = {
-            email: Joi.string().required(),
-            password: Joi.string().required()
+            email: Joi.string().email().required(),
+            password: Joi.string().regex(/^[a-zA-Z0-9]{3,30}$/).required()
         }
         return Joi.validate(user, schema);
     },

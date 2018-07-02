@@ -30,5 +30,5 @@ app.get('/api/posts', PostController.getAllPosts);
 app.post('/api/post', AuthController.authentication, PostController.addPost);
 app.put('/api/post/:id', AuthController.authentication, PostController.updatePost);
 
-const port = process.env.POR || 4081;
+const port = process.env.POR || 4082;
 app.listen(port, () => console.log(`Listening on port ${port}`));
