@@ -8,12 +8,13 @@ function Validate(){
         return Joi.validate(id, schema);
     },
     this.byToken = (token) => {
-        if(token === "null") token = null;
-        
+        if(token === "null") 
+            token = null;
+
         const schema = {
             token: Joi.string().required(),
         }
-        return Joi.validate(token, schema);
+        return Joi.validate({token}, schema);
     },
     this.byRegister = (user) => {
         const schema = {

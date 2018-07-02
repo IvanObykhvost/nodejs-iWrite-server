@@ -6,9 +6,8 @@ const serialize = require('../utils/serialize').Serialize;
 function UserController(){
     this.getUserByToken = (req, res) => {
         const token = req.headers.authorization;
-        let {error} = validate.byToken({token});
-        //if(error) return this.returnError(error, res);
-        if(error) return res.send(serialize.getTokenNull());
+        let {error} = validate.byToken(token);
+        if(error) return this.returnError(error, res);
 
         UserRepository.findOne(token, (error, user) => {
             if(error || !user) 

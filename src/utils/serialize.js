@@ -31,13 +31,6 @@ function Serialize(){
             }
         };
     },
-    this.getTokenNull = () => {
-        return { 
-            user: {
-                token:  null
-            }
-        };
-    }
     this.error = (error) => {
         return {
             error
