@@ -11,9 +11,7 @@ function Validate(){
         const schema = {
             token: Joi.string().required(),
         }
-        let {error} = Joi.validate(token, schema);
-        
-        return {error, token};
+        return Joi.validate(token, schema);
     },
     this.byRegister = (user) => {
         const schema = {
