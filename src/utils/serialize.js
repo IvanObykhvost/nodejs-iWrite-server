@@ -31,6 +31,25 @@ function Serialize(){
             }
         };
     },
+    this.getProfile = (user) => {
+        return {
+            user: {
+                name: user.name,
+                email: user.email,
+                bio: user.bio,
+                image: user.image
+            }
+        }
+    },
+    this.setUpdatePost = (post) =>{
+        return {
+            id: post.id,
+            title: post.title,
+            topic: post.topic,
+            message: post.message,
+            tags: post.tags
+        }
+    },
     this.error = (error) => {
         return {
             error

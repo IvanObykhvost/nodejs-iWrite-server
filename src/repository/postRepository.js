@@ -28,7 +28,11 @@ const PostSchema = new mongoose.Schema({
 });
 
 PostSchema.pre('find', function() {
-    this.populate('users');
+    this.populate('author');
+});
+
+PostSchema.pre('findOne', function() {
+    this.populate('author');
 });
 
 const PostRepository = mongoose.model('posts', PostSchema);

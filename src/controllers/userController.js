@@ -6,19 +6,32 @@ const serialize = require('../utils/serialize').Serialize;
 function UserController(){
     this.getUserByToken = (req, res) => {
         const token = req.headers.authorization;
-        let {error} = validate.byToken(token);
-        if(error) return this.returnError(error, res);
+        let errorToken = validate.byToken(token).error;
+        if(errorToken) return this.returnError(ERRORS.INVALID_TOKEN, res);
 
-        UserRepository.findOne(token, (error, user) => {
-            if(error || !user) 
-                this.error(ERRORS.NO_FOUND_USER, res);
-            else
-                res.send(serialize.getUser(user));
-        });
+        this.getUserByParams({token})
+            .then(
+                user => {
+                    if(!user || user.details ) 
+                        return this.returnError(ERRORS.INVALID_CREDENTIALS, res);
+                    else
+                        res.send(serialize.getUser(user));
+                },
+                error => {
+                    return this.returnError(error, res);
+            })
     },
     this.registerUser = (req, res) => {
-        let {error} = validate.byRegister(req.body, res);
+        let {error} = validate.byRegister(req.body);
         if(error) return this.returnError(error, res);
+
+        // this.getUserByParams({...req.body.email, ...req.body.name})
+        //     .then(user => {
+        //         if(!user || user.details ) 
+        //             this.returnError(ERRORS.INVALID_CREDENTIALS, res);
+        //         else
+        //             res.send(serialize.getUser(user));
+        //     })
 
         UserRepository.find({ email: req.body.email}, (error, user) => {
             if(error) res.send(serialize.error(error));
@@ -27,12 +40,12 @@ function UserController(){
                 let user = new UserRepository(req.body);
                 user.save(error => {
                     if(error) 
-                        this.error(error, res);
+                        return this.returnError(error, res);
                     else
                         res.send(serialize.getUser(user));
                 });
             } else {
-                this.error(ERRORS.EMAIL_ALREADY, res);
+                return this.returnError(ERRORS.EMAIL_ALREADY, res);
             }
         });
     },
@@ -40,16 +53,29 @@ function UserController(){
         let {error} = validate.byLogin(req.body, res);
         if(error) return this.returnError(error, res);
 
-        UserRepository.findOne({ email: req.body.email, password: req.body.password}, (error, user) => {
-            if(error){
-                this.error(error, res);
-            } 
-            if (!user){
-                this.error(ERRORS.NO_FOUND_USER, res);
-            } else {
-                res.send(serialize.getUser(user));
-            }
-        });
+        this.getUserByParams({email: req.body.email, password: req.body.password})
+            .then(
+                user => {
+                    if (!user){
+                        this.returnError(ERRORS.INVALID_CREDENTIALS, res);
+                    } else {
+                        res.send(serialize.getUser(user));
+                    }
+                },
+                error => {
+                    return this.returnError(error, res);
+                }
+            )
+        // UserRepository.findOne({ email: req.body.email, password: req.body.password}, (error, user) => {
+        //     if(error){
+        //         this.returnError(error, res);
+        //     } 
+        //     if (!user){
+        //         this.returnError(ERRORS.NO_FOUND_USER, res);
+        //     } else {
+        //         res.send(serialize.getUser(user));
+        //     }
+        // });
     },
     
     this.saveUser = (req, res) => { 
@@ -78,7 +104,7 @@ function UserController(){
     },
     this.returnError = (error, res) => {
         let message = error;
-        if(error.details[0]) {
+        if(error.details) {
             message = error.details[0].message;
         }
         return res.send(serialize.error(message));

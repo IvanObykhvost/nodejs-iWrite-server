@@ -18,15 +18,25 @@ function Validate(){
     },
     this.byRegister = (user) => {
         const schema = {
-            name: Joi.string().alphanum().required(),
+            name: Joi.string().required(),
             email: Joi.string().email().required(),
-            password: Joi.string().regex(/^[a-zA-Z0-9]{3,30}$/).required()
+            password: Joi.string().regex(/^[a-zA-Z0-9]{3,30}$/).min(6).required()
         }
         return Joi.validate(user, schema);
     },
     this.byPost = (post) => {
         const schema = {
-            title: Joi.string().alphanum().required(),
+            title: Joi.string().required(),
+            topic: Joi.string().required(),
+            message: Joi.string().required(),
+            tags: Joi.string()
+        }
+        return Joi.validate(post, schema);
+    },
+    this.byUpdatePost = (post) => {
+        const schema = {
+            id: Joi.string().required(),
+            title: Joi.string().required(),
             topic: Joi.string().required(),
             message: Joi.string().required(),
             tags: Joi.string()
