@@ -74,9 +74,10 @@ function ProfileController(){
                     throw ERRORS.NO_FOUND_USER;
                 }
                 else{
+                    let sortUsers = this.sortBytoken(users, token);
                     let follow = new FollowRepository({
-                        user: users[0]._id,
-                        followUser: users[1]._id
+                        user: sortUsers[0]._id,
+                        followUser: sortUsers[1]._id
                     });
                     follow.save(error => {
                         if(error) 
@@ -102,7 +103,11 @@ function ProfileController(){
                     throw ERRORS.NO_FOUND_USER;
                 }
                 else{
-                    return FollowRepository.findOneAndRemove({user: {_id : users[0]._id}, followUser: { _id : users[1]._id} })
+                    let sortUsers = this.sortBytoken(users, token);
+                    return FollowRepository.findOneAndRemove({
+                        user: {_id : sortUsers[0]._id}, 
+                        followUser: { _id : sortUsers[1]._id} 
+                    })
                 }
             })
             .then(follow => {
@@ -115,6 +120,17 @@ function ProfileController(){
                 this.returnError(e, res)
             )
     },
+    this.sortBytoken = (users, token) => {
+        if(users[0].token === token){
+            return users;
+        }
+        else{
+            let temp = users[0];
+            users[0] = users[1];
+            users[1] = temp;
+            return users;
+        }
+    }
     this.returnError = (error, res) => {
         let message = error;
         if(error.details) {

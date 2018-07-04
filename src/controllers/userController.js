@@ -72,23 +72,18 @@ function UserController(){
         if(error) return this.returnError(error, res);
         user.updatedAt = new Date();
 
-        UserRepository.findOneAndUpdate(token, user, (error, user) => {
-            if(error) 
-                throw error;
-            if(!user)
-                throw ERRORS.NO_FOUND_USER;
-        })
-        .catch(e => 
-            this.returnError(e, res)
-        );
-
-        this.getOneUserByParams({token})
+        UserRepository.findOneAndUpdate({token}, user)
             .then(user => {
+                if(user.error) 
+                    throw error;
+                if(!user)
+                    throw ERRORS.NO_FOUND_USER;
+
                 res.send(serialize.getUser(user));
             })
             .catch(e => 
                 this.returnError(e, res)
-            )
+            );
     },
 
     /**
