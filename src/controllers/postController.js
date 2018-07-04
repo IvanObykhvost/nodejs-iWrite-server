@@ -17,7 +17,7 @@ function PostController(){
                 if(posts.details) this.returnError(ERRORS.NO_POSTS);
                 
                 if(posts.length === 0){
-                    res.send('No posts yet');
+                    res.send([]);
                 } else {
                     res.send(posts.map(post => serialize.getPost(post)));
                 }
@@ -116,6 +116,8 @@ function PostController(){
         let post = serialize.setUpdatePost(req.body);
         let {error} = validate.byUpdatePost(post);
         if(error) return this.returnError(error, res);
+
+        // post.updatedAt = new Date();
 
         this.getOnePostByParams({_id: post.id})
             .then(post => {

@@ -21,8 +21,10 @@ const ERRORS = {
 };
 
 const SUCCESSFULLY_SIGNED = 'Successfully signed';
+const SUCCESSFULLY_REMOVED_SUBSCRIPTION = 'Successfully removed subscription';
 const MESSAGE = {
-    SUCCESSFULLY_SIGNED
+    SUCCESSFULLY_SIGNED,
+    SUCCESSFULLY_REMOVED_SUBSCRIPTION
 }
 
 

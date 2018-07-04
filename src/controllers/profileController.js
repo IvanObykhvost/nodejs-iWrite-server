@@ -50,6 +50,18 @@ function ProfileController(){
             this.returnError(error, res)
         )
     },
+    this.getFollowFlag = (token, user) => {
+        return UserController.getOneUserByParams({token})
+            .then(currentUser =>
+                FollowRepository.findOne({user: {_id : currentUser._id}, followUser: { _id : user._id} })
+            )
+            .then(follow => {
+                if(!follow)
+                    return false;
+                else
+                    return true;
+            })
+    },
     this.follow = (req, res) => {
         const token = req.headers.authorization;
         const name = req.params.username;
@@ -78,17 +90,30 @@ function ProfileController(){
                 this.returnError(e, res)
             )
     },
-    this.getFollowFlag = (token, user) => {
-        return UserController.getOneUserByParams({token})
-            .then(currentUser =>
-                FollowRepository.findOne({user: {_id : currentUser._id}, followUser: { _id : user._id} })
-            )
-            .then(follow => {
-                if(!follow)
-                    return false;
-                else
-                    return true;
+    this.unfollow = (req, res) => {
+        const token = req.headers.authorization;
+        const name = req.params.username;
+        let error = validate.byUsername({name}).error;
+        if(error) return this.returnError(error, res);
+
+        UserController.getUsersByParams({ $or: [ {token}, {name}]})
+            .then(users => {
+                if(users.length < 2){
+                    throw ERRORS.NO_FOUND_USER;
+                }
+                else{
+                    return FollowRepository.findOneAndRemove({user: {_id : users[0]._id}, followUser: { _id : users[1]._id} })
+                }
             })
+            .then(follow => {
+                if(follow.error)
+                    throw follow.error
+                else
+                    res.send(serialize.success(MESSAGE.SUCCESSFULLY_REMOVED_SUBSCRIPTION));
+            })
+            .catch(e =>
+                this.returnError(e, res)
+            )
     },
     this.returnError = (error, res) => {
         let message = error;

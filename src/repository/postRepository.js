@@ -11,6 +11,7 @@ const PostSchema = new mongoose.Schema({
     topic: {type: String, required: true},
     message: {type: String, required: true},
     favorited: {type: Boolean, default: false},
+    favouritesCount: {type: Number, default: 0},
     createdAt: {type: Date, default: Date.now},
     updatedAt: {type: Date, default: Date.now},
     tags: {type: String, required: false},
