@@ -33,6 +33,7 @@ app.put('/api/post/:id', AuthController.authentication, PostController.updatePos
 
 //ProfileController
 app.get('/api/profile/:username', ProfileController.getProfile);
+app.post('/api/profile/:username/follow', AuthController.authentication, ProfileController.follow);
 
-const port = process.env.POR || 4081;
+const port = process.env.POR || 4082;
 app.listen(port, () => console.log(`Listening on port ${port}`));

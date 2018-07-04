@@ -31,13 +31,24 @@ function Serialize(){
             }
         };
     },
+    this.getSetting = (user) => {
+        return {
+            user: {
+                name: user.name,
+                email: user.email,
+                bio: user.bio,
+                image: user.image,
+            }
+        }
+    },
     this.getProfile = (user) => {
         return {
             user: {
                 name: user.name,
                 email: user.email,
                 bio: user.bio,
-                image: user.image
+                image: user.image,
+                following: user.following
             }
         }
     },
@@ -47,7 +58,12 @@ function Serialize(){
             title: post.title,
             topic: post.topic,
             message: post.message,
-            tags: post.tags
+            tags: post.tags,
+        }
+    },
+    this.success = (success) => {
+        return {
+            success
         }
     },
     this.error = (error) => {

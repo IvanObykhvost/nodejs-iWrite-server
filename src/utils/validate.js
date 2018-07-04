@@ -55,6 +55,15 @@ function Validate(){
             name: Joi.string().required()
         }
         return Joi.validate(user, schema);
+    },
+    this.byUpdateUser = (user) => {
+        const schema = {
+            image: Joi.string().trim().allow(""),
+            name: Joi.string().required(),
+            email: Joi.string().email().required(),
+            bio: Joi.string().trim().allow("")
+        }
+        return Joi.validate(user, schema);
     }
 }
 

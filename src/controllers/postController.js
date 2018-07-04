@@ -27,7 +27,7 @@ function PostController(){
         let {error: errorName} = validate.byUsername({name});
         if(errorName) this.returnError(errorName, res);
 
-        UserController.getUserByParams({name})
+        UserController.getOneUserByParams({name})
             .then(user => {
                 if(!user) this.returnError(ERRORS.NO_FOUND_USER, res);
 
@@ -50,7 +50,7 @@ function PostController(){
         let {error} = validate.byUsername({name});
         if(error) return this.returnError(error, res);
 
-        UserController.getUserByParams({name})
+        UserController.getOneUserByParams({name})
             .then(user => {
                 if(!user) return this.returnError(ERRORS.NO_FOUND_USER, res);
 
@@ -79,7 +79,7 @@ function PostController(){
                     if(!post) 
                         throw ERRORS.NO_POSTS;
                     else
-                        res.send(serialize.getPost(post))
+                        res.send({post: serialize.getPost(post)})
             })
             .catch(error =>
                 this.returnError(error, res)
@@ -90,7 +90,7 @@ function PostController(){
         let {error: errorPost} = validate.byPost(req.body);
         if(errorPost) return this.returnError(errorPost, res);
 
-        UserController.getUserByParams({token})
+        UserController.getOneUserByParams({token})
             .then(user => {
                 if(!user) throw ERRORS.NO_FOUND_USER;
                 let post = new PostRepository({
@@ -139,10 +139,10 @@ function PostController(){
             })
     },
     /**
-    * Use by look for user
+    * Use by look for Posts
     * @method  getPostsByParams
     * @param {Object} findParams object by find {name : 'Jack'}.
-    * @returns {Object} user or error
+    * @returns {Array[Objects]} posts or error
     */
    this.getPostsByParams = (findParams) => {
         return PostRepository.find(findParams, 
@@ -153,6 +153,12 @@ function PostController(){
                 else return posts;
         })
     },
+     /**
+    * Use by look for Post
+    * @method  getPostsByParams
+    * @param {Object} findParams object by find {name : 'Jack'}.
+    * @returns {Object} post or error
+    */
     this.getOnePostByParams = (findParams) => {
         return PostRepository.findOne(findParams, 
             (error, post) => {
@@ -164,6 +170,9 @@ function PostController(){
         let message = error;
         if(error.details) {
             message = error.details[0].message;
+        }
+        if(error.message){
+            message = error.message;
         }
         return res.send(serialize.error(message));
     }

@@ -20,7 +20,13 @@ const ERRORS = {
     INVALID_TOKEN
 };
 
+const SUCCESSFULLY_SIGNED = 'Successfully signed';
+const MESSAGE = {
+    SUCCESSFULLY_SIGNED
+}
+
 
 
 module.exports.COLLECTIONS = COLLECTIONS;
 module.exports.ERRORS = ERRORS;
+module.exports.MESSAGE = MESSAGE;
