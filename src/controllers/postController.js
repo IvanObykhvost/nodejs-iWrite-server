@@ -1,5 +1,6 @@
 const PostRepository = require('../repository/postRepository');
 const UserController = require('../controllers/userController');
+const FollowRepository = require('../repository/followRepository');
 const ERRORS = require('../constants').ERRORS;
 const validate = require('../utils/validate').Validate;
 const serialize = require('../utils/serialize').Serialize;
@@ -43,7 +44,7 @@ function PostController(){
                     })
             })
             .catch(e => {
-                this.returnError(e.message, res);
+                this.returnError(e, res);
             })
     },
     this.getPostsByFavorited = (res, name) => {
@@ -66,7 +67,46 @@ function PostController(){
                     })
             })
             .catch(e => {
-                this.returnError(e.message, res);
+                this.returnError(e, res);
+            })
+    },
+    this.getPostsByFeed = (req, res) => {
+        const token = req.headers.authorization;
+
+        UserController.getOneUserByParams({token})
+            .then(user => {
+                if(user.errors) throw user.errors;
+                if(!user) throw ERRORS.NO_FOUND_USER;
+
+                return FollowRepository.find({user: user.id})
+            })
+            .then(users => {
+                if(users.errors) throw users.error;
+
+                if(users.length === 0) 
+                    res.send([]);
+                else {
+                    let ids = [];
+                    users.forEach(element => {
+                        ids.push(element.followUser.id);
+                    });
+                    return ids;
+                }
+            })
+            .then(ids => 
+                this.getPostsByParams({author: {$in: ids}})
+            )
+            .then(posts =>{
+                if(posts.errors) throw posts.error;
+
+                if(posts.length === 0) 
+                    res.send([]);
+                else {
+                    res.send(posts.map(post => serialize.getPost(post)));
+                }
+            })
+            .catch(e => {
+                this.returnError(e, res);
             })
     },
     this.getPost = (req, res) => {
@@ -139,6 +179,9 @@ function PostController(){
             .catch( error => {
                 this.returnError(error, res);
             })
+    },
+    this.postFavorite = (req, res) => {
+
     },
     /**
     * Use by look for Posts

@@ -19,6 +19,7 @@ const FollowSchema = new mongoose.Schema({
 
 FollowSchema.pre('find', function() {
     this.populate('user');
+    this.populate('followUser');
 });
 
 const FollowRepository = mongoose.model('follow', FollowSchema);
