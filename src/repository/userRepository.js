@@ -1,4 +1,4 @@
-const ERRORS = require('../constants').ERRORS;
+const constants = require('../constants');
 
 const mongoose = require('mongoose');
 const url = "mongodb://127.0.0.1:27017/node";
@@ -22,6 +22,18 @@ const UserSchema = new mongoose.Schema({
     bio: {type: String, default: ''},
     image: {type: String, default: ''},
     token: {type: String, default: generate.token()},
+    follows: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'users'
+    }],
+    favorites: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'posts'
+    }]
+});
+
+UserSchema.pre('findOne', function() {
+    this.populate('follows');
 });
 
 const UserRepository = mongoose.model('users', UserSchema);
@@ -35,7 +47,7 @@ const UserRepository = mongoose.model('users', UserSchema);
 UserRepository.getOneUserByParams = (findParams) => {
     return UserRepository.findOne(findParams)
         .then(user => {
-            if(!user) return Promise.reject(ERRORS.NO_FOUND_USER)
+            if(!user) return Promise.reject(constants.ERRORS.NO_FOUND_USER)
             if(user.errors) return Promise.reject(user.errors);
             return user;
         });
@@ -50,7 +62,7 @@ UserRepository.getOneUserByParams = (findParams) => {
 UserRepository.getUsersByParams = (findParams) => {
     return UserRepository.find(findParams)
         .then(users => {
-            if(users.length === 0) return Promise.reject(ERRORS.NO_FOUND_USER)
+            if(users.length === 0) return Promise.reject(constants.ERRORS.NO_FOUND_USER)
             if(users.errors) return Promise.reject(users.errors);
             return users;
         });
@@ -65,10 +77,25 @@ UserRepository.getUsersByParams = (findParams) => {
 UserRepository.updateOneUser = (findParams, user) => {
     return UserRepository.findOneAndUpdate(findParams, user, { new: true })
         .then(user => {
-            if(!user) return Promise.reject(ERRORS.NO_FOUND_USER)
+            if(!user) return Promise.reject(constants.ERRORS.NO_FOUND_USER)
             if(user.errors) return Promise.reject(user.errors);
             return user;
         });
 };
+
+
+UserRepository.getFollowFlag = (token, user) => {
+    return UserRepository.getOneUserByParams({token})
+        .then( 
+            currentUser => {
+                return currentUser.follows.some(el => {
+                    if(el.id === user.id)
+                        return true;
+                    return false;
+                })
+            },
+            error => Promise.reject(error)
+        )
+}
 
 module.exports = UserRepository;

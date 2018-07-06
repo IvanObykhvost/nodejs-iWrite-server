@@ -1,7 +1,5 @@
 const UserRepository = require('../repository/userRepository');
-const FollowRepository = require('../repository/followRepository');
-const ERRORS = require('../constants').ERRORS;
-const MESSAGE = require('../constants').MESSAGE;
+const constants = require('../constants');
 const validate = require('../utils/validate').Validate;
 const serialize = require('../utils/serialize').Serialize;
 
@@ -20,17 +18,17 @@ function ProfileController(){
         UserRepository.getOneUserByParams({name})
             .then(
                 user => currentUser = user, 
-                error => this.returnError(error, res)
+                error => {throw error}
             )
             .then(
-                () => this.getFollowFlag(token, currentUser, res)
+                () => UserRepository.getFollowFlag(token, currentUser, res)
             )
             .then(follow =>{
                 currentUser.following = follow;
                 res.send(serialize.getProfile(currentUser));
             })
-            .catch(error =>
-                this.returnError(error, res)
+            .catch(e =>
+                this.returnError(e, res)
             )
     },
     this.getProfileWithoutToken = (name, res) => {
@@ -40,67 +38,19 @@ function ProfileController(){
                     user.following = false;
                     res.send(serialize.getProfile(user));
                 }, 
-                error => this.returnError(error, res)
-            )
-            .catch(error =>
-                this.returnError(error, res)
-            )
-    },
-    this.getFollowFlag = (token, user, res) => {
-        return UserRepository.getOneUserByParams({token})
-            .then( 
-                currentUser => FollowRepository.getOneFollowByParams({
-                    user: {_id : currentUser.id}, 
-                    followUser: { _id : user.id} 
-                }),
-                error =>  this.returnError(error, res)
-            )
-            .then( 
-                follow => follow ? true: false, 
-                error => {
-                    if(error === ERRORS.NO_FOUND_FOLLOW)
-                        return false
-                    this.returnError(error, res)
-                }
-            )
-            .catch(error =>
-                this.returnError(error, res)
-            )
-    },
-    this.follow = (req, res) => {
-        const token = req.headers.authorization;
-        const name = req.params.username;
-        let {error} = validate.byUsername({name});
-        if(error) return this.returnError(error, res);
-
-        UserRepository.getUsersByParams({ $or: [ {token}, {name}]})
-            .then(users => {
-                    if(users.length < 2){
-                        throw ERRORS.NO_FOUND_USER;
-                    }
-                    else{
-                        let sortUsers = this.sortBytoken(users, token);
-                        let follow = new FollowRepository({
-                            user: sortUsers[0]._id,
-                            followUser: sortUsers[1]._id
-                        });
-                        return follow.save();
-                    }
-                },
-                error =>  this.returnError(error, res)
-            )
-            .then(follow => {
-                    if(follow.errors) 
-                        throw follow.errors;
-                    else
-                        res.send(serialize.success(MESSAGE.SUCCESSFULLY_SIGNED));
-                }
+                error => {throw error}
             )
             .catch(e =>
                 this.returnError(e, res)
             )
     },
+    this.follow = (req, res) => {
+        this.addOrDeleteFollow(req, res, constants.OPERATION.ADD_FOLLOW)
+    },
     this.unfollow = (req, res) => {
+        this.addOrDeleteFollow(req, res, constants.OPERATION.DELETE_FOLLOW)
+    },
+    this.addOrDeleteFollow = (req, res, action) => {
         const token = req.headers.authorization;
         const name = req.params.username;
         let error = validate.byUsername({name}).error;
@@ -109,27 +59,33 @@ function ProfileController(){
         UserRepository.getUsersByParams({ $or: [ {token}, {name}]})
             .then(users => {
                     if(users.length < 2){
-                        throw ERRORS.NO_FOUND_USER;
+                        throw constants.ERRORS.NO_FOUND_USER;
                     }
                     else{
-                        let sortUsers = this.sortBytoken(users, token);
-                        return FollowRepository.deleteFollowByParams({
-                            user: {_id : sortUsers[0]._id}, 
-                            followUser: { _id : sortUsers[1]._id} 
-                        })
+                        let sortUsers = this.sortByToken(users, token);
+
+                        if(action === constants.OPERATION.ADD_FOLLOW)
+                            sortUsers[0].follows.push(sortUsers[1].id);
+                        else
+                            sortUsers[0].follows.pull(sortUsers[1].id);
+
+                        return sortUsers[0].save();
                     }
                 },
-                error =>  this.returnError(error, res)
+                error =>  {throw error}
             )
-            .then(
-                message => res.send(serialize.success(message)),
-                error =>  this.returnError(error, res)
+            .then(user => {
+                    if(user.errors) 
+                        throw user.errors;
+                    else
+                        res.send(serialize.success(constants.MESSAGE.SUCCESSFULLY_SIGNED));
+                }
             )
             .catch(e =>
                 this.returnError(e, res)
             )
     },
-    this.sortBytoken = (users, token) => {
+    this.sortByToken = (users, token) => {
         if(users[0].token === token){
             return users;
         }
@@ -148,7 +104,7 @@ function ProfileController(){
         if(error.message){
             message = error.message;
         }
-        return res.send(serialize.error(message));
+        res.send(serialize.error(message));
     }
 }
 

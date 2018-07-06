@@ -31,12 +31,13 @@ app.get('/api/post/:id', PostController.getPost);
 // app.get('/api/posts/:name', PostController.getPostsByUsername);
 app.post('/api/post', AuthController.authentication, PostController.addPost);
 app.put('/api/post/:id', AuthController.authentication, PostController.updatePost);
-app.post('/api/post/:id/favorite', AuthController.authentication, PostController.postFavorite);
+app.post('/api/post/:id/favorite', AuthController.authentication, PostController.addFavorite);
+app.delete('/api/post/:id/unfavorite', AuthController.authentication, PostController.deleteFavorite);
 
 //ProfileController
 app.get('/api/profile/:username', ProfileController.getProfile);
 app.post('/api/profile/:username/follow', AuthController.authentication, ProfileController.follow);
 app.delete('/api/profile/:username/unfollow', AuthController.authentication, ProfileController.unfollow);
 
-const port = process.env.POR || 4082;
+const port = process.env.POR || 4081;
 app.listen(port, () => console.log(`Listening on port ${port}`));

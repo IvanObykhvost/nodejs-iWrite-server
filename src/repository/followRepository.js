@@ -39,6 +39,15 @@ FollowRepository.getOneFollowByParams = (findParams) => {
         });
 };
 
+FollowRepository.getFollowsByParams = (findParams) => {
+    return FollowRepository.find(findParams)
+        .then(follows => {
+            if(follows === 0) return Promise.reject(ERRORS.NO_FOUND_FOLLOW);
+            if(follows.errors) return Promise.reject(follow.errors);
+            return follows;
+        });
+};
+
 FollowRepository.deleteFollowByParams = (findParams) => {
     return FollowRepository.findOneAndRemove(findParams)
         .then(follow => {

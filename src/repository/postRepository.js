@@ -1,3 +1,5 @@
+const constants = require('../constants');
+
 const mongoose = require('mongoose');
 const url = "mongodb://127.0.0.1:27017/node";
 const option = { 
@@ -14,6 +16,10 @@ const PostSchema = new mongoose.Schema({
     topic: {type: String, required: true},
     message: {type: String, required: true},
     favorited: {type: Boolean, default: false},
+    // favorited: [{
+    //         type: mongoose.Schema.Types.ObjectId,
+    //         ref: 'favorites'
+    // }],
     favouritesCount: {type: Number, default: 0},
     createdAt: {type: Date, default: Date.now},
     updatedAt: {type: Date, default: Date.now},
@@ -33,6 +39,7 @@ const PostSchema = new mongoose.Schema({
 
 PostSchema.pre('find', function() {
     this.populate('author');
+    // this.populate('favorited');
 });
 
 PostSchema.pre('findOne', function() {
@@ -48,9 +55,9 @@ const PostRepository = mongoose.model('posts', PostSchema);
 * @return {Array[Objects]} posts or error
 */
 PostRepository.getPostsByParams = (findParams) => {
-    return PostRepository.find(findParams, null, {sort: '-updatedAt'})
+    return PostRepository.find(findParams, null, {sort: '-createdAt'})
         .then(posts => {
-            if(posts.length === 0) return Promise.reject(ERRORS.NO_FOUND_POST);
+            if(posts.length === 0) return Promise.reject(constants.ERRORS.NO_FOUND_POST);
             if(posts.errors) return Promise.reject(posts.errors);
             return posts;
         });
@@ -65,7 +72,16 @@ PostRepository.getPostsByParams = (findParams) => {
 PostRepository.getOnePostByParams = (findParams) => {
     return PostRepository.findOne(findParams)
         .then(post => {
-            if(!post) return Promise.reject(ERRORS.NO_FOUND_POST)
+            if(!post) return Promise.reject(constants.ERRORS.NO_FOUND_POST)
+            if(post.errors) return Promise.reject(post.errors);
+            return post;
+        });
+}
+
+PostRepository.updateOnePostByParams = (findParams, post) => {
+    return PostRepository.findOneAndUpdate(findParams, post, {new: true})
+        .then(post => {
+            if(!post) return Promise.reject(constants.ERRORS.NO_FOUND_POST)
             if(post.errors) return Promise.reject(post.errors);
             return post;
         });

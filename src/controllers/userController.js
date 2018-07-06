@@ -12,7 +12,7 @@ function UserController(){
         UserRepository.getOneUserByParams({token})
             .then(
                 user => res.send(serialize.getUser(user)),
-                error =>  this.returnError(error, res)
+                error => {throw error}
             )
             .catch(e => 
                 this.returnError(e, res)
@@ -48,13 +48,12 @@ function UserController(){
         UserRepository.getOneUserByParams({email: req.body.email, password: req.body.password})
             .then(
                 user => res.send(serialize.getUser(user)),
-                error =>  this.returnError(error, res)
+                error => {throw error}
             )
             .catch(e =>
                 this.returnError(e, res)
             )
     },
-    
     this.saveUser = (req, res) => { 
         const token = req.headers.authorization;
         const {user} = serialize.getSetting(req.body.user);
@@ -70,35 +69,6 @@ function UserController(){
             .catch(e => 
                 this.returnError(e, res)
             );
-    },
-
-    /**
-    * Use by look for user
-    * @method  getOneUserByParams
-    * @param {Object} findParams object by find {name : 'Jack'}.
-    * @returns {Object} user or error
-    */
-    this.getOneUserByParams = (findParams) => {
-        return UserRepository.findOne(findParams)
-            .then(user => {
-                if(!user) return Promise.reject(ERRORS.NO_FOUND_USER)
-                if(user.errors) return Promise.reject(error);
-                return user
-            });
-    },
-    /**
-    * Use by look for many users
-    * @method  getUsersByParams
-    * @param {Object} findParams object by find {name : 'Jack'}.
-    * @returns {Array[Objects]} users or error
-    */
-   this.getUsersByParams = (findParams) => {
-    return UserRepository.find(findParams)
-        .then(users => {
-            if(users.length === 0) return Promise.reject(ERRORS.NO_FOUND_USER)
-            if(users.errors) return Promise.reject(error);
-            return users
-        });
     },
     this.returnError = (error, res) => {
         let message = error;
