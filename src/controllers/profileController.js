@@ -1,4 +1,4 @@
-const UserController = require('../controllers/userController');
+const UserRepository = require('../repository/userRepository');
 const FollowRepository = require('../repository/followRepository');
 const ERRORS = require('../constants').ERRORS;
 const MESSAGE = require('../constants').MESSAGE;
@@ -8,7 +8,7 @@ const serialize = require('../utils/serialize').Serialize;
 function ProfileController(){
     this.getProfile = (req, res) => {
         const name = req.params.username;
-        let error = validate.byUsername({name}).error;
+        let {error} = validate.byUsername({name});
         if(error) return this.returnError(error, res);
 
         const token = req.headers.authorization;
@@ -17,17 +17,14 @@ function ProfileController(){
         if(token === "null")
             return this.getProfileWithoutToken(name, res);
 
-        UserController.getOneUserByParams({name})
-            .then(user => {
-                if(!user) //что-то не работает
-                    throw ERRORS.NO_FOUND_USER;
-                else{
-                    currentUser = user;
-                    return user
-                }
-                    
-            })
-            .then(user => this.getFollowFlag(token, user))
+        UserRepository.getOneUserByParams({name})
+            .then(
+                user => currentUser = user, 
+                error => this.returnError(error, res)
+            )
+            .then(
+                () => this.getFollowFlag(token, currentUser, res)
+            )
             .then(follow =>{
                 currentUser.following = follow;
                 res.send(serialize.getProfile(currentUser));
@@ -37,30 +34,38 @@ function ProfileController(){
             )
     },
     this.getProfileWithoutToken = (name, res) => {
-        UserController.getOneUserByParams({name})
-        .then(user => {
-            if(!user) //что-то не работает
-                throw ERRORS.NO_FOUND_USER;
-            else{
-                user.following = false;
-                res.send(serialize.getProfile(user));
-            }
-        })
-        .catch(error =>
-            this.returnError(error, res)
-        )
-    },
-    this.getFollowFlag = (token, user) => {
-        return UserController.getOneUserByParams({token})
-            .then(currentUser =>
-                FollowRepository.findOne({user: {_id : currentUser._id}, followUser: { _id : user._id} })
+        UserRepository.getOneUserByParams({name})
+            .then(
+                user => {
+                    user.following = false;
+                    res.send(serialize.getProfile(user));
+                }, 
+                error => this.returnError(error, res)
             )
-            .then(follow => {
-                if(!follow)
-                    return false;
-                else
-                    return true;
-            })
+            .catch(error =>
+                this.returnError(error, res)
+            )
+    },
+    this.getFollowFlag = (token, user, res) => {
+        return UserRepository.getOneUserByParams({token})
+            .then( 
+                currentUser => FollowRepository.getOneFollowByParams({
+                    user: {_id : currentUser.id}, 
+                    followUser: { _id : user.id} 
+                }),
+                error =>  this.returnError(error, res)
+            )
+            .then( 
+                follow => follow ? true: false, 
+                error => {
+                    if(error === ERRORS.NO_FOUND_FOLLOW)
+                        return false
+                    this.returnError(error, res)
+                }
+            )
+            .catch(error =>
+                this.returnError(error, res)
+            )
     },
     this.follow = (req, res) => {
         const token = req.headers.authorization;

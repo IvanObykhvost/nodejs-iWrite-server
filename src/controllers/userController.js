@@ -6,59 +6,49 @@ const serialize = require('../utils/serialize').Serialize;
 function UserController(){
     this.getUserByToken = (req, res) => {
         const token = req.headers.authorization;
-        let errorToken = validate.byToken(token).error;
-        if(errorToken) return this.returnError(ERRORS.INVALID_TOKEN, res);
+        let {error} = validate.byToken(token);
+        if(error) return this.returnError(ERRORS.INVALID_TOKEN, res);
 
-        this.getOneUserByParams({token})
+        UserRepository.getOneUserByParams({token})
             .then(
-                user => {
-                    if(!user || user.details ) 
-                        throw ERRORS.INVALID_CREDENTIALS;
-                    else
-                        res.send(serialize.getUser(user));
-                },
-                error => {
-                    return this.returnError(error, res);
-            })
+                user => res.send(serialize.getUser(user)),
+                error =>  this.returnError(error, res)
+            )
             .catch(e => 
-                this.registerUser(e, res)
+                this.returnError(e, res)
             )
     },
     this.registerUser = (req, res) => {
         let {error} = validate.byRegister(req.body);
         if(error) return this.returnError(error, res);
 
-        UserRepository.find({ email: req.body.email}, (error, user) => {
-            if(error) res.send(serialize.error(error));
-
-            if(user.length === 0) {
-                let user = new UserRepository(req.body);
-                user.save(error => {
-                    if(error) 
-                        return this.returnError(error, res);
-                    else
-                        res.send(serialize.getUser(user));
-                });
-            } else {
-                return this.returnError(ERRORS.EMAIL_ALREADY, res);
-            }
-        });
+        UserRepository.getUsersByParams({ $or: [ {email: req.body.email}, {name: req.body.name}]})
+            .then(
+                () => { throw ERRORS.EMAIL_ALREADY },
+                error => {
+                    if(error === ERRORS.NO_FOUND_USER){
+                        let user = new UserRepository(req.body);
+                        return user.save();
+                    }
+                    throw error;
+                }
+            )
+            .then(user => {
+                    if(user.errors) throw user.errors;
+                    res.send(serialize.getUser(user))
+            })
+            .catch(e => 
+                this.returnError(e, res)
+            )
     },
     this.loginUser = (req, res) => { 
         let {error} = validate.byLogin(req.body, res);
         if(error) return this.returnError(error, res);
 
-        this.getOneUserByParams({email: req.body.email, password: req.body.password})
-            .then(user => {
-                    if (!user){
-                        throw ERRORS.INVALID_CREDENTIALS;
-                    } else {
-                        res.send(serialize.getUser(user));
-                    }
-                },
-                error => {
-                    return this.returnError(error, res);
-                }
+        UserRepository.getOneUserByParams({email: req.body.email, password: req.body.password})
+            .then(
+                user => res.send(serialize.getUser(user)),
+                error =>  this.returnError(error, res)
             )
             .catch(e =>
                 this.returnError(e, res)
@@ -67,20 +57,16 @@ function UserController(){
     
     this.saveUser = (req, res) => { 
         const token = req.headers.authorization;
-        const user = serialize.getSetting(req.body.user).user;
+        const {user} = serialize.getSetting(req.body.user);
         let {error} = validate.byUpdateUser(user);
         if(error) return this.returnError(error, res);
         user.updatedAt = new Date();
 
-        UserRepository.findOneAndUpdate({token}, user)
-            .then(user => {
-                if(user.error) 
-                    throw error;
-                if(!user)
-                    throw ERRORS.NO_FOUND_USER;
-
-                res.send(serialize.getUser(user));
-            })
+        UserRepository.updateOneUser({token}, user)
+            .then(
+                user => res.send(serialize.getUser(user)),
+                error =>  this.returnError(error, res)
+            )
             .catch(e => 
                 this.returnError(e, res)
             );
@@ -93,10 +79,12 @@ function UserController(){
     * @returns {Object} user or error
     */
     this.getOneUserByParams = (findParams) => {
-        return UserRepository.findOne(findParams, (error, user) => {
-            if(error) return error;
-            else return user;
-        });
+        return UserRepository.findOne(findParams)
+            .then(user => {
+                if(!user) return Promise.reject(ERRORS.NO_FOUND_USER)
+                if(user.errors) return Promise.reject(error);
+                return user
+            });
     },
     /**
     * Use by look for many users
@@ -105,11 +93,13 @@ function UserController(){
     * @returns {Array[Objects]} users or error
     */
    this.getUsersByParams = (findParams) => {
-    return UserRepository.find(findParams, (error, users) => {
-        if(error) return error;
-        else return users;
-    });
-},
+    return UserRepository.find(findParams)
+        .then(users => {
+            if(users.length === 0) return Promise.reject(ERRORS.NO_FOUND_USER)
+            if(users.errors) return Promise.reject(error);
+            return users
+        });
+    },
     this.returnError = (error, res) => {
         let message = error;
         if(error.details) {

@@ -10,8 +10,7 @@ function Serialize(){
             favouritesCount: post.favouritesCount,
             createdAt: post.createdAt,
             updatedAt: post.updatedAt,
-            author: this.getAuthor(post.author),
-            
+            author: this.getAuthor(post.author)
         }
     },
     this.getAuthor = (author) => {

@@ -1,5 +1,6 @@
 const validate = require('../utils/validate').Validate;
 const serialize = require('../utils/serialize').Serialize;
+const ERRORS = require('../constants').ERRORS;
 
 function AuthController(){
     this.authentication = (req, res, next) => {

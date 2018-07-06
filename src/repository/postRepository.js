@@ -1,7 +1,10 @@
-var mongoose = require('mongoose');
-var url = "mongodb://127.0.0.1:27017/node";
+const mongoose = require('mongoose');
+const url = "mongodb://127.0.0.1:27017/node";
+const option = { 
+    useNewUrlParser: true 
+}
 
-mongoose.connect(url, (error) => {
+mongoose.connect(url, option, (error) => {
     if(error) console.log(error);
     else console.log("PostRepository connected");
 });
