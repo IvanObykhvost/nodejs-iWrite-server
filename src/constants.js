@@ -10,7 +10,7 @@ const NO_FOUND_FAVORITE = "No found favorite";
 const NO_FOUND_FOLLOW = "No found follow";
 const INVALID_CREDENTIALS = "Invalid email or password";
 const EMAIL_ALREADY = "Sorry, such email is already registered.";
-const NO_POSTS = "No posts yet...";
+const NO_POSTS_YET = "No posts yet...";
 const INVALID_TOKEN = "Invalid token";
 
 const ERRORS = {
@@ -19,7 +19,6 @@ const ERRORS = {
     NO_FOUND_FAVORITE,
     NO_FOUND_FOLLOW,
     EMAIL_ALREADY,
-    NO_POSTS,
     INVALID_CREDENTIALS,
     INVALID_TOKEN
 };
@@ -30,7 +29,8 @@ const SUCCESSFULLY_ADDED = 'Successfully added';
 const MESSAGE = {
     SUCCESSFULLY_SIGNED,
     SUCCESSFULLY_REMOVED_SUBSCRIPTION,
-    SUCCESSFULLY_ADDED
+    SUCCESSFULLY_ADDED,
+    NO_POSTS_YET
 }
 
 

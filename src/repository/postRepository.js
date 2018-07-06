@@ -41,4 +41,34 @@ PostSchema.pre('findOne', function() {
 
 const PostRepository = mongoose.model('posts', PostSchema);
 
+/**
+* Use by looking for Posts
+* @method  getPostsByParams
+* @param {Object} findParams object by find {name : 'Jack'}.
+* @return {Array[Objects]} posts or error
+*/
+PostRepository.getPostsByParams = (findParams) => {
+    return PostRepository.find(findParams, null, {sort: '-updatedAt'})
+        .then(posts => {
+            if(posts.length === 0) return Promise.reject(ERRORS.NO_FOUND_POST);
+            if(posts.errors) return Promise.reject(posts.errors);
+            return posts;
+        });
+}
+
+ /**
+* Use by looking for Post
+* @method  getOnePostByParams
+* @param {Object} findParams object by find {name : 'Jack'}.
+* @returns {Object} post or error
+*/
+PostRepository.getOnePostByParams = (findParams) => {
+    return PostRepository.findOne(findParams)
+        .then(post => {
+            if(!post) return Promise.reject(ERRORS.NO_FOUND_POST)
+            if(post.errors) return Promise.reject(post.errors);
+            return post;
+        });
+}
+
 module.exports = PostRepository;

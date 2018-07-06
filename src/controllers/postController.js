@@ -15,7 +15,7 @@ function PostController(){
         name = req.query.favorited;
         if(name) return this.getPostsByFavorited(name, res);
 
-        this.getPostsByParams({})
+        PostRepository.getPostsByParams({})
             .then(
                 posts => res.send(posts.map(post => serialize.getPost(post))),
                 error => {
@@ -53,21 +53,20 @@ function PostController(){
         let {error} = validate.byUsername({name});
         if(error) return this.returnError(error, res);
 
-        UserController.getOneUserByParams({name})
-            .then(user => {
-                if(!user) return this.returnError(ERRORS.NO_FOUND_USER, res);
-
-                this.getPostsByParams({author : user.id, favorited: true})
-                    .then(posts => {
-                        if(posts.details) this.returnError(ERRORS.NO_POSTS);
-                        
-                        if(posts.length === 0){
-                            res.send('No posts yet');
-                        } else {
-                            res.send(posts.map(post => serialize.getPost(post)));
-                        }
-                    })
-            })
+        UserRepository.getOneUserByParams({name})
+            .then(
+                user => PostRepository.getPostsByParams({author : user.id, favorited: true}),
+                error => this.returnError(error, res)
+            )
+            .then(
+                posts => res.send(posts.map(post => serialize.getPost(post))),
+                error => {
+                    if(error === ERRORS.NO_FOUND_POST)
+                        //return res.send(MESSAGE.NO_POSTS_YET);
+                        return res.send([]);
+                    this.returnError(error, res)
+                }
+            )
             .catch(e => {
                 this.returnError(e, res);
             })
@@ -75,39 +74,34 @@ function PostController(){
     this.getPostsByFeed = (req, res) => {
         const token = req.headers.authorization;
 
-        UserController.getOneUserByParams({token})
+        UserRepository.getOneUserByParams({token})
             .then(
-                user => FollowRepository.find({user: user.id}),
+                user => FollowRepository.getOneFollowByParams({user: user.id}),
                 error =>  this.returnError(error, res)
             )
             .then(users => {
-                if(users.errors) throw users.error;
-
-                if(users.length === 0) return Promise.reject();
-
-                let ids = [];
-                users.forEach(element => {
-                    ids.push(element.followUser.id);
-                });
-                return ids;
-            })
-            .then(ids => 
-                this.getPostsByParams({author: {$in: ids}}),
-                () => res.send([])
-            )
-            .then(posts =>{
-                    if(posts.errors) throw posts.error;
-
-                    if(posts.length === 0) 
-                        return Promise.reject();
-                    else {
-                        res.send(posts.map(post => serialize.getPost(post)));
-                    }
+                    let ids = [];
+                    users.forEach(element => {
+                        ids.push(element.followUser.id);
+                    });
+                    return ids;
+                }, 
+                error =>  {
+                    if(error === ERRORS.NO_FOUND_POST)
+                        return res.send([]);
+                    this.returnError(error, res)
                 }
             )
             .then(
-                null,
-                () => res.send([])
+                ids => PostRepository.getPostsByParams({author: {$in: ids}})
+            )
+            .then(
+                posts => res.send(posts.map(post => serialize.getPost(post))),
+                error =>  {
+                    if(error === ERRORS.NO_FOUND_POST)
+                        return res.send([]);
+                    this.returnError(error, res)
+                }
             )
             .catch(e => {
                 this.returnError(e, res);
@@ -212,7 +206,7 @@ function PostController(){
             )
         //add favorite
             .then(post => {
-                if(post.errors) throw error;
+                if(post.errors) throw post.errors;
                 let favorite = new FavoriteRepository({
                     user: currentUser.id,
                     post: currentPost.id
@@ -221,42 +215,13 @@ function PostController(){
             })
         //return post
             .then(favorite => {
-                if(favorite.errors) throw error;
+                if(favorite.errors) throw favorite.errors;
                 currentPost.favorited = true;
                 res.send({post: serialize.getPost(currentPost)});
             })
             .catch( error => {
                 this.returnError(error, res);
             })
-    },
-    /**
-    * Use by looking for Posts
-    * @method  getPostsByParams
-    * @param {Object} findParams object by find {name : 'Jack'}.
-    * @return {Array[Objects]} posts or error
-    */
-   this.getPostsByParams = (findParams) => {
-        return PostRepository.find(findParams, null, {sort: '-updatedAt'})
-            .then(posts => {
-                if(posts.length === 0) return Promise.reject(ERRORS.NO_FOUND_POST);
-                if(posts.errors) return Promise.reject(error);
-
-                return posts;
-            });
-    },
-     /**
-    * Use by looking for Post
-    * @method  getPostsByParams
-    * @param {Object} findParams object by find {name : 'Jack'}.
-    * @returns {Object} post or error
-    */
-    this.getOnePostByParams = (findParams) => {
-        return PostRepository.findOne(findParams)
-            .then(post => {
-                if(!post) return Promise.reject(ERRORS.NO_FOUND_POST)
-                if(post.errors) return Promise.reject(error);
-                return post;
-            });
     },
     this.returnError = (error, res) => {
         let message = error;

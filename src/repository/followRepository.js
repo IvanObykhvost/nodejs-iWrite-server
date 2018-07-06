@@ -1,4 +1,5 @@
 const ERRORS = require('../constants').ERRORS;
+const MESSAGE = require('../constants').MESSAGE;
 
 const mongoose = require('mongoose');
 const url = "mongodb://127.0.0.1:27017/node";
@@ -35,6 +36,14 @@ FollowRepository.getOneFollowByParams = (findParams) => {
             if(!follow) return Promise.reject(ERRORS.NO_FOUND_FOLLOW);
             if(follow.errors) return Promise.reject(follow.errors);
             return follow;
+        });
+};
+
+FollowRepository.deleteFollowByParams = (findParams) => {
+    return FollowRepository.findOneAndRemove(findParams)
+        .then(follow => {
+            if(follow.errors) return Promise.reject(follow.errors);
+            return MESSAGE.SUCCESSFULLY_REMOVED_SUBSCRIPTION;
         });
 };
 

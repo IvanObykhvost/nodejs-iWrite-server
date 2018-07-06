@@ -70,28 +70,32 @@ function ProfileController(){
     this.follow = (req, res) => {
         const token = req.headers.authorization;
         const name = req.params.username;
-        let error = validate.byUsername({name}).error;
+        let {error} = validate.byUsername({name});
         if(error) return this.returnError(error, res);
 
-        UserController.getUsersByParams({ $or: [ {token}, {name}]})
+        UserRepository.getUsersByParams({ $or: [ {token}, {name}]})
             .then(users => {
-                if(users.length < 2){
-                    throw ERRORS.NO_FOUND_USER;
+                    if(users.length < 2){
+                        throw ERRORS.NO_FOUND_USER;
+                    }
+                    else{
+                        let sortUsers = this.sortBytoken(users, token);
+                        let follow = new FollowRepository({
+                            user: sortUsers[0]._id,
+                            followUser: sortUsers[1]._id
+                        });
+                        return follow.save();
+                    }
+                },
+                error =>  this.returnError(error, res)
+            )
+            .then(follow => {
+                    if(follow.errors) 
+                        throw follow.errors;
+                    else
+                        res.send(serialize.success(MESSAGE.SUCCESSFULLY_SIGNED));
                 }
-                else{
-                    let sortUsers = this.sortBytoken(users, token);
-                    let follow = new FollowRepository({
-                        user: sortUsers[0]._id,
-                        followUser: sortUsers[1]._id
-                    });
-                    follow.save(error => {
-                        if(error) 
-                            throw error;
-                        else
-                            res.send(serialize.success(MESSAGE.SUCCESSFULLY_SIGNED));
-                    });
-                }
-            })
+            )
             .catch(e =>
                 this.returnError(e, res)
             )
@@ -102,25 +106,25 @@ function ProfileController(){
         let error = validate.byUsername({name}).error;
         if(error) return this.returnError(error, res);
 
-        UserController.getUsersByParams({ $or: [ {token}, {name}]})
+        UserRepository.getUsersByParams({ $or: [ {token}, {name}]})
             .then(users => {
-                if(users.length < 2){
-                    throw ERRORS.NO_FOUND_USER;
-                }
-                else{
-                    let sortUsers = this.sortBytoken(users, token);
-                    return FollowRepository.findOneAndRemove({
-                        user: {_id : sortUsers[0]._id}, 
-                        followUser: { _id : sortUsers[1]._id} 
-                    })
-                }
-            })
-            .then(follow => {
-                if(follow.error)
-                    throw follow.error
-                else
-                    res.send(serialize.success(MESSAGE.SUCCESSFULLY_REMOVED_SUBSCRIPTION));
-            })
+                    if(users.length < 2){
+                        throw ERRORS.NO_FOUND_USER;
+                    }
+                    else{
+                        let sortUsers = this.sortBytoken(users, token);
+                        return FollowRepository.deleteFollowByParams({
+                            user: {_id : sortUsers[0]._id}, 
+                            followUser: { _id : sortUsers[1]._id} 
+                        })
+                    }
+                },
+                error =>  this.returnError(error, res)
+            )
+            .then(
+                message => res.send(serialize.success(message)),
+                error =>  this.returnError(error, res)
+            )
             .catch(e =>
                 this.returnError(e, res)
             )
