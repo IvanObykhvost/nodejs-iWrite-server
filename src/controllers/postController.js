@@ -112,13 +112,11 @@ function PostController(){
         let {error} = validate.byId({id});
         if(error) return this.returnError(error, res);
 
-        this.getOnePostByParams({_id : id})
-            .then(post => {
-                    if(!post) 
-                        throw ERRORS.NO_POSTS;
-                    else
-                        res.send({post: serialize.getPost(post)})
-            })
+        PostRepository.getOnePostByParams({_id : id})
+            .then(
+                post => res.send({post: serialize.getPost(post)})
+
+            )            
             .catch(error =>
                 this.returnError(error, res)
             );
