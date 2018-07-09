@@ -36,6 +36,11 @@ UserSchema.pre('findOne', function() {
     this.populate('follows');
 });
 
+UserSchema.pre('findOneAndUpdate', function(next) {
+    this.update({}, {updatedAt: new Date()});
+    next();
+});
+
 const UserRepository = mongoose.model('users', UserSchema);
 
 /**
@@ -83,13 +88,18 @@ UserRepository.updateOneUser = (findParams, user) => {
         });
 };
 
-
-UserRepository.getFollowFlag = (token, user) => {
+/**
+* get true if follow user is
+* @method  getFollowFlag
+* @param {String, ObjectId} token 
+* @return {Bool} true or false or error
+*/
+UserRepository.getFollowFlag = (token, id) => {
     return UserRepository.getOneUserByParams({token})
         .then( 
             currentUser => {
                 return currentUser.follows.some(el => {
-                    if(el.id === user.id)
+                    if(el.id === id)
                         return true;
                     return false;
                 })

@@ -16,10 +16,10 @@ const PostSchema = new mongoose.Schema({
     topic: {type: String, required: true},
     message: {type: String, required: true},
     favorited: {type: Boolean, default: false},
-    // favorited: [{
-    //         type: mongoose.Schema.Types.ObjectId,
-    //         ref: 'favorites'
-    // }],
+    favorites: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'users'
+    }],
     favouritesCount: {type: Number, default: 0},
     createdAt: {type: Date, default: Date.now},
     updatedAt: {type: Date, default: Date.now},
@@ -39,11 +39,17 @@ const PostSchema = new mongoose.Schema({
 
 PostSchema.pre('find', function() {
     this.populate('author');
-    // this.populate('favorited');
+    this.populate('favorites');
 });
 
 PostSchema.pre('findOne', function() {
     this.populate('author');
+    this.populate('favorites');
+});
+
+PostSchema.pre('findOneAndUpdate', function(next) {
+    this.update({}, {updatedAt: new Date()});
+    next();
 });
 
 const PostRepository = mongoose.model('posts', PostSchema);

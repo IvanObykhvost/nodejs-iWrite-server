@@ -1,4 +1,6 @@
 const Joi = require('joi');
+const serialize = require('./serialize').Serialize;
+const constants = require('../constants');
 
 function Validate(){
     this.byId = (id) => {
@@ -64,6 +66,25 @@ function Validate(){
             bio: Joi.string().trim().allow("")
         }
         return Joi.validate(user, schema);
+    },
+    this.returnError = (error, res) => {
+        let message = error;
+        if(error.details) {
+            message = error.details[0].message;
+        }
+        if(error.message){
+            message = error.message;
+        }
+        switch(message){
+            case constants.ERRORS.NO_FOUND_FOLLOWS:
+            case constants.ERRORS.NO_FOUND_POST:
+                res.send([]);
+                break;
+                
+            default:
+                res.send(serialize.error(message));
+        }
+        
     }
 }
 
