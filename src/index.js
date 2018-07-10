@@ -35,6 +35,7 @@ app.delete('/api/post/:id', AuthController.authentication, PostController.delete
 app.post('/api/post/:id/favorite', AuthController.authentication, PostController.addFavorite);
 app.delete('/api/post/:id/unfavorite', AuthController.authentication, PostController.deleteFavorite);
 //conmments
+app.get('/api/post/:id/comments', PostController.getComments);
 app.post('/api/post/:id/comments', AuthController.authentication, PostController.addComment);
 app.delete('/api/post/:id/comments/:commentId', AuthController.authentication, PostController.deleteComment);
 

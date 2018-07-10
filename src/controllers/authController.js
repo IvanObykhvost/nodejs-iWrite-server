@@ -9,16 +9,15 @@ function AuthController(){
         let {error} = validate.byToken(token);
         if(error) return validate.sendError(ERRORS.INVALID_TOKEN, res);
 
-        next();
-        // UserRepository.getOneUserByParams({token})
-        //     .then(
-        //         user => {
-        //             req.body.currentUser = serialize.getUser(user).user;
-        //             next();
-        //         },
-        //         error => {throw error}
-        //     )
-        //     .catch(e => validate.sendError(e, res));
+        UserRepository.getOneUserByParams({token})
+            .then(
+                user => {
+                    req.body.currentUser = serialize.getUser(user).user;
+                    next();
+                },
+                error => {throw error}
+            )
+            .catch(e => validate.sendError(e, res));
     }
 }
 

@@ -113,7 +113,7 @@ function PostController(){
 
         PostRepository.getOnePostByParams({_id : id})
             .then(
-                post => res.send({post: serialize.getPostFull(post)}),
+                post => res.send({post: serialize.getPost(post)}),
                 error =>  {throw error}
             )            
             .catch(e => validate.sendError(e, res));
@@ -236,6 +236,19 @@ function PostController(){
     },
 
     //Comment
+    this.getComments = (req, res) => {
+        const postId = req.params.id;
+        const {error} = validate.byId({id: postId});
+        if(error) return validate.sendError(error, res);
+
+        PostRepository.getOnePostByParams({_id: postId})
+            .then(
+                post => res.send({comments: post.comments.map(comment => serialize.getComment(comment))}),
+                error => {throw error}
+            )
+            .catch(e => validate.sendError(e, res))
+
+    },
     this.addComment  = (req, res) => {
         const comment = {
             postId: req.params.id, 
