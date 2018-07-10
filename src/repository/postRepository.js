@@ -29,22 +29,21 @@ const PostSchema = new mongoose.Schema({
         ref: 'users'
     },
     comments: [{
-        text: String,
-        author: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'users'
-        }
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'comments'
     }]
 });
 
 PostSchema.pre('find', function() {
     this.populate('author');
     this.populate('favorites');
+    this.populate('comments');
 });
 
 PostSchema.pre('findOne', function() {
     this.populate('author');
     this.populate('favorites');
+    this.populate('comments');
 });
 
 PostSchema.pre('findOneAndUpdate', function(next) {
@@ -63,7 +62,7 @@ const PostRepository = mongoose.model('posts', PostSchema);
 PostRepository.getPostsByParams = (findParams) => {
     return PostRepository.find(findParams, null, {sort: '-createdAt'})
         .then(posts => {
-            if(posts.length === 0) return Promise.reject(constants.ERRORS.NO_FOUND_POST);
+            if(posts.length === 0) return Promise.reject(constants.ERRORS.NO_FOUND_POSTS);
             if(posts.errors) return Promise.reject(posts.errors);
             return posts;
         });

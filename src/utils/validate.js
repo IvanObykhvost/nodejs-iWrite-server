@@ -5,7 +5,7 @@ const constants = require('../constants');
 function Validate(){
     this.byId = (id) => {
         const schema = {
-            id: Joi.string().required(),
+            id: Joi.string().min(24).max(24).required(),
         }
         return Joi.validate(id, schema);
     },
@@ -17,6 +17,8 @@ function Validate(){
             token: Joi.string().required(),
         }
         return Joi.validate({token}, schema);
+        // let {error} = Joi.validate({token}, schema);
+        // return this.returnError(error, constants.ERRORS.INVALID_TOKEN);
     },
     this.byRegister = (user) => {
         const schema = {
@@ -67,7 +69,26 @@ function Validate(){
         }
         return Joi.validate(user, schema);
     },
-    this.returnError = (error, res) => {
+    this.byComment = (comment) => {
+        const schema = {
+            text: Joi.string().trim().required(),
+            postId: Joi.string().required(),
+        }
+        return Joi.validate(comment, schema);
+    },
+    this.byDeleteComment = (comment) => {
+        const schema = {
+            commentId: Joi.string().trim().required(),
+            postId: Joi.string().required(),
+        }
+        return Joi.validate(comment, schema);
+    },
+    this.returnError = (error, message) => {
+        if(error)
+            return {error: message}
+        return error;
+    },
+    this.sendError = (error, res) => {
         let message = error;
         if(error.details) {
             message = error.details[0].message;
@@ -77,14 +98,14 @@ function Validate(){
         }
         switch(message){
             case constants.ERRORS.NO_FOUND_FOLLOWS:
-            case constants.ERRORS.NO_FOUND_POST:
+            case constants.ERRORS.NO_FOUND_POSTS:
+            case constants.ERRORS.NO_FOUND_COMMENTS:
                 res.send([]);
                 break;
                 
             default:
                 res.send(serialize.error(message));
         }
-        
     }
 }
 

@@ -7,7 +7,7 @@ function ProfileController(){
     this.getProfile = (req, res) => {
         const name = req.params.username;
         let {error} = validate.byUsername({name});
-        if(error) return validate.returnError(error, res);
+        if(error) return validate.sendError(error, res);
 
         const token = req.headers.authorization;
         let currentUser = null;
@@ -27,7 +27,7 @@ function ProfileController(){
                 currentUser.following = follow;
                 res.send(serialize.getProfile(currentUser));
             })
-            .catch(e => validate.returnError(e, res));
+            .catch(e => validate.sendError(e, res));
     },
     this.getProfileWithoutToken = (name, res) => {
         UserRepository.getOneUserByParams({name})
@@ -38,7 +38,7 @@ function ProfileController(){
                 }, 
                 error => {throw error}
             )
-            .catch(e => validate.returnError(e, res));
+            .catch(e => validate.sendError(e, res));
     },
     this.follow = (req, res) => {
         this.addOrDeleteFollow(req, res, constants.OPERATION.ADD_FOLLOW)
@@ -50,7 +50,7 @@ function ProfileController(){
         const token = req.headers.authorization;
         const name = req.params.username;
         let error = validate.byUsername({name}).error;
-        if(error) return validate.returnError(error, res);
+        if(error) return validate.sendError(error, res);
 
         UserRepository.getUsersByParams({ $or: [{token}, {name}]})
             .then(users => {
@@ -77,7 +77,7 @@ function ProfileController(){
                         res.send(serialize.success(constants.MESSAGE.SUCCESSFULLY_SIGNED));
                 }
             )
-            .catch(e => validate.returnError(e, res));
+            .catch(e => validate.sendError(e, res));
     },
     this.sortByToken = (users, token) => {
         if(users[0].token === token){

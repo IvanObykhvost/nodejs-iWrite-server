@@ -13,6 +13,21 @@ function Serialize(){
             author: this.getAuthor(post.author)
         }
     },
+    this.getPostFull = (post) => {
+        return {
+            id: post.id,
+            title: post.title,
+            topic: post.topic,
+            message: post.message,
+            tags: post.tags,
+            favorited: post.favorited,
+            favouritesCount: post.favouritesCount,
+            createdAt: post.createdAt,
+            updatedAt: post.updatedAt,
+            author: this.getAuthor(post.author),
+            comments: post.comments.map(comment => this.getComment(comment))
+        }
+    },
     this.getAuthor = (author) => {
         return {
             name: author.name,
@@ -51,6 +66,14 @@ function Serialize(){
                 image: user.image,
                 following: user.following
             }
+        }
+    },
+    this.getComment = (comment) => {
+        return {
+                id: comment.id,
+                text: comment.text,
+                createdAt: comment.createdAt,
+                author: this.getAuthor(comment.author)
         }
     },
     this.setUpdatePost = (post) =>{

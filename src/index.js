@@ -28,11 +28,15 @@ app.put('/api/user', AuthController.authentication, UserController.saveUser);
 app.get('/api/posts', PostController.getAllPosts);
 app.get('/api/posts/feed', AuthController.authentication, PostController.getPostsByFeed);
 app.get('/api/post/:id', PostController.getPost);
-// app.get('/api/posts/:name', PostController.getPostsByUsername);
 app.post('/api/post', AuthController.authentication, PostController.addPost);
 app.put('/api/post/:id', AuthController.authentication, PostController.updatePost);
+app.delete('/api/post/:id', AuthController.authentication, PostController.deletePost);
+//favorites
 app.post('/api/post/:id/favorite', AuthController.authentication, PostController.addFavorite);
 app.delete('/api/post/:id/unfavorite', AuthController.authentication, PostController.deleteFavorite);
+//conmments
+app.post('/api/post/:id/comments', AuthController.authentication, PostController.addComment);
+app.delete('/api/post/:id/comments/:commentId', AuthController.authentication, PostController.deleteComment);
 
 //ProfileController
 app.get('/api/profile/:username', ProfileController.getProfile);

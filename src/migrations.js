@@ -30,20 +30,9 @@ MongoClient.connect(url, option, function(err, db) {
     if (err) throw err;
     var dbo = db.db("node");
 
-    dbo.createCollection('follows', function(err, res) {
+    dbo.createCollection('comments', function(err, res) {
         if (err) throw err;
-        console.log("Collection follows created!");
-        db.close();
-    });
-});
-
-MongoClient.connect(url, option, function(err, db) {
-    if (err) throw err;
-    var dbo = db.db("node");
-
-    dbo.createCollection('favorites', function(err, res) {
-        if (err) throw err;
-        console.log("Collection favorites created!");
+        console.log("Collection comments created!");
         db.close();
     });
 });

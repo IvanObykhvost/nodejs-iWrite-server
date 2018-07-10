@@ -7,9 +7,12 @@ const COLLECTIONS = {
 };
 
 const NO_FOUND_USER = "No found user";
-const NO_FOUND_POST = "No found posts";
+const NO_FOUND_POST = "No found post";
+const NO_FOUND_POSTS = "No found posts";
 const NO_FOUND_FAVORITE = "No found favorite";
 const NO_FOUND_FOLLOWS = "No found follows user";
+const NO_FOUND_COMMENT = "No found comment";
+const NO_FOUND_COMMENTS = "No found comments";
 const INVALID_CREDENTIALS = "Invalid email or password";
 const EMAIL_ALREADY = "Sorry, such email is already registered.";
 const NO_POSTS_YET = "No posts yet...";
@@ -19,9 +22,12 @@ const NO_POST_OWNER ='post not owner this user';
 const ERRORS = {
     NO_FOUND_USER,
     NO_FOUND_POST,
+    NO_FOUND_POSTS,
     NO_FOUND_FAVORITE,
     NO_FOUND_FOLLOWS,
     NO_POST_OWNER,
+    NO_FOUND_COMMENT,
+    NO_FOUND_COMMENTS,
     EMAIL_ALREADY,
     INVALID_CREDENTIALS,
     INVALID_TOKEN
@@ -46,6 +52,8 @@ const ADD_FOLLOW = "ADD_FOLLOW";
 const DELETE_FOLLOW = "DELETE_FOLLOW";
 const ADD_FAVORITE = "ADD_FAVORITE";
 const DELETE_FAVORITE = "DELETE_FAVORITE";
+const ADD_COMMENT= "ADD_COMMENT";
+const DELETE_COMMENT = "DELETE_COMMENT";
 const GET_POSTS_BY_TOKEN = "GET_POSTS_BY_TOKEN";
 const GET_POSTS_BY_AUTHOR = "GET_POSTS_BY_AUTHOR";
 const GET_POSTS_BY_FEVORITED = "GET_POSTS_BY_FEVORITED";
@@ -55,6 +63,8 @@ const OPERATION = {
     DELETE_FOLLOW,
     ADD_FAVORITE,
     DELETE_FAVORITE,
+    ADD_COMMENT,
+    DELETE_COMMENT,
     GET_POSTS_BY_TOKEN,
     GET_POSTS_BY_FEVORITED,
     GET_POSTS_BY_AUTHOR

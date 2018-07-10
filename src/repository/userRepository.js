@@ -34,6 +34,7 @@ const UserSchema = new mongoose.Schema({
 
 UserSchema.pre('findOne', function() {
     this.populate('follows');
+    this.populate('favorites');
 });
 
 UserSchema.pre('findOneAndUpdate', function(next) {
