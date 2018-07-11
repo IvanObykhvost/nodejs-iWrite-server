@@ -8,4 +8,4 @@ function Generate(){
     }
 }
 
-module.exports.Generate = Generate;
+module.exports.Generate = new Generate();

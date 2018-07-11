@@ -14,7 +14,8 @@ const NO_FOUND_FOLLOWS = "No found follows user";
 const NO_FOUND_COMMENT = "No found comment";
 const NO_FOUND_COMMENTS = "No found comments";
 const INVALID_CREDENTIALS = "Invalid email or password";
-const EMAIL_ALREADY = "Sorry, such email is already registered.";
+const EMAIL_ALREADY = "Sorry, such email is already registered";
+const USERNAME_ALREADY_USE = "Sorry, such username is already use";
 const NO_POSTS_YET = "No posts yet...";
 const INVALID_TOKEN = "Invalid token";
 const NO_POST_OWNER ='post not owner this user';
@@ -31,6 +32,7 @@ const ERRORS = {
     NO_FOUND_COMMENT,
     NO_FOUND_COMMENTS,
     EMAIL_ALREADY,
+    USERNAME_ALREADY_USE,
     INVALID_CREDENTIALS,
     INVALID_TOKEN,
     //validate errors

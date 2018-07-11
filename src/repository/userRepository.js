@@ -2,8 +2,7 @@ const constants = require('../constants');
 
 const mongoose = require('mongoose');
 const url = "mongodb://127.0.0.1:27017/node";
-const Generate = require('../utils/genarateToken').Generate;
-let generate = new Generate();
+const generate = require('../utils/genarateToken').Generate;
 const option = { 
     useNewUrlParser: true 
 }

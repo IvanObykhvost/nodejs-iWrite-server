@@ -2,6 +2,7 @@ const UserRepository = require('../repository/userRepository');
 const constants = require('../constants');
 const validate = require('../utils/validate').Validate;
 const serialize = require('../utils/serialize').Serialize;
+const generate = require('../utils/genarateToken').Generate;
 
 function UserController(){
     this.getUserByToken = (req, res) => {
@@ -43,6 +44,13 @@ function UserController(){
 
         UserRepository.getOneUserByParams({email: req.body.email, password: req.body.password})
             .then(
+                user => {
+                    user.token = generate.token();
+                    return UserRepository.saveOneUser(user);
+                },
+                error => {throw error}
+            )
+            .then(
                 user => res.send(serialize.getUser(user)),
                 error => {throw error}
             )
@@ -50,11 +58,35 @@ function UserController(){
     },
     this.saveUser = (req, res) => { 
         const token = req.headers.authorization;
-        const {user} = serialize.getSetting(req.body.user);
-        let {error} = validate.byUpdateUser(user);
+        const settingsUser = serialize.getSetting(req.body.user).user;
+        let {error} = validate.byUpdateUser(settingsUser);
         if(error) return validate.sendError(error, res);
 
-        UserRepository.updateOneUser({token}, user)
+        UserRepository.getOneUserByParams({email: settingsUser.email})
+            .then(
+                user => {
+                    if(user.token !== token)
+                        throw constants.ERRORS.EMAIL_ALREADY;
+                    return UserRepository.getOneUserByParams({name: settingsUser.name});
+                },
+                error =>  {
+                    if(error === constants.ERRORS.NO_FOUND_USER)
+                        return UserRepository.getOneUserByParams({name: settingsUser.name});
+                    throw error;
+                }
+            )
+            .then(
+                user => {
+                    if(user.token !== token)
+                        throw constants.ERRORS.USERNAME_ALREADY_USE;
+                    return UserRepository.updateOneUser({token}, settingsUser);
+                },
+                error =>  {
+                    if(error === constants.ERRORS.NO_FOUND_USER)
+                        return UserRepository.updateOneUser({token}, settingsUser);
+                    throw error;
+                }
+            )
             .then(
                 user => res.send(serialize.getUser(user)),
                 error =>  {throw error}
