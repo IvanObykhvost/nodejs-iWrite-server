@@ -1,13 +1,12 @@
 const UserRepository = require('../repository/userRepository');
 const validate = require('../utils/validate').Validate;
 const serialize = require('../utils/serialize').Serialize;
-const ERRORS = require('../constants').ERRORS;
 
 function AuthController(){
     this.authentication = (req, res, next) => {
         const token = req.headers.authorization;
         let {error} = validate.byToken(token);
-        if(error) return validate.sendError(ERRORS.INVALID_TOKEN, res);
+        if(error) return validate.sendError(error, res);
 
         UserRepository.getOneUserByParams({token})
             .then(

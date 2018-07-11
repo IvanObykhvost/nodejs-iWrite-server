@@ -19,6 +19,8 @@ const NO_POSTS_YET = "No posts yet...";
 const INVALID_TOKEN = "Invalid token";
 const NO_POST_OWNER ='post not owner this user';
 
+const PROPERTY_IS_EMPTY = (property) => `${property} can not be empty`;
+
 const ERRORS = {
     NO_FOUND_USER,
     NO_FOUND_POST,
@@ -30,7 +32,9 @@ const ERRORS = {
     NO_FOUND_COMMENTS,
     EMAIL_ALREADY,
     INVALID_CREDENTIALS,
-    INVALID_TOKEN
+    INVALID_TOKEN,
+    //validate errors
+    PROPERTY_IS_EMPTY
 };
 
 const SUCCESSFULLY_SIGNED = 'Successfully signed';
@@ -72,6 +76,8 @@ const OPERATION = {
     GET_POSTS_BY_FEVORITED,
     GET_POSTS_BY_AUTHOR
 }
+
+
 
 module.exports.COLLECTIONS = COLLECTIONS;
 module.exports.ERRORS = ERRORS;

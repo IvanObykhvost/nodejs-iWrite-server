@@ -14,15 +14,13 @@ function Validate(){
             token = null;
 
         const schema = {
-            token: Joi.string().required(),
+            token: Joi.string().required().error(() => constants.ERRORS.INVALID_TOKEN)
         }
         return Joi.validate({token}, schema);
-        // let {error} = Joi.validate({token}, schema);
-        // return this.returnError(error, constants.ERRORS.INVALID_TOKEN);
     },
     this.byRegister = (user) => {
         const schema = {
-            name: Joi.string().required(),
+            name: Joi.string().required().error(() => constants.ERRORS.PROPERTY_IS_EMPTY('Name')),
             email: Joi.string().email().required(),
             password: Joi.string().regex(/^[a-zA-Z0-9]{3,30}$/).min(6).required()
         }
@@ -30,9 +28,9 @@ function Validate(){
     },
     this.byPost = (post) => {
         const schema = {
-            title: Joi.string().required(),
-            topic: Joi.string().required(),
-            message: Joi.string().required(),
+            title: Joi.string().required().error(() => constants.ERRORS.PROPERTY_IS_EMPTY('Title')),
+            topic: Joi.string().required().error(() => constants.ERRORS.PROPERTY_IS_EMPTY('Topic')),
+            message: Joi.string().required().error(() => constants.ERRORS.PROPERTY_IS_EMPTY('Message')),
             tags: Joi.string()
         }
         return Joi.validate(post, schema);
@@ -40,9 +38,9 @@ function Validate(){
     this.byUpdatePost = (post) => {
         const schema = {
             id: Joi.string().required(),
-            title: Joi.string().required(),
-            topic: Joi.string().required(),
-            message: Joi.string().required(),
+            title: Joi.string().required().error(() => constants.ERRORS.PROPERTY_IS_EMPTY('Title')),
+            topic: Joi.string().required().error(() => constants.ERRORS.PROPERTY_IS_EMPTY('Topic')),
+            message: Joi.string().required().error(() => constants.ERRORS.PROPERTY_IS_EMPTY('Message')),
             tags: Joi.string()
         }
         return Joi.validate(post, schema);
@@ -56,14 +54,14 @@ function Validate(){
     },
     this.byUsername = (user) => {
         const schema = {
-            name: Joi.string().required()
+            name: Joi.string().required().error(() => constants.ERRORS.PROPERTY_IS_EMPTY('Name'))
         }
         return Joi.validate(user, schema);
     },
     this.byUpdateUser = (user) => {
         const schema = {
             image: Joi.string().trim().allow(""),
-            name: Joi.string().required(),
+            name: Joi.string().required().error(() => constants.ERRORS.PROPERTY_IS_EMPTY('Username')),
             email: Joi.string().email().required(),
             bio: Joi.string().trim().allow("")
         }
@@ -71,7 +69,7 @@ function Validate(){
     },
     this.byComment = (comment) => {
         const schema = {
-            text: Joi.string().trim().required(),
+            text: Joi.string().trim().required().error(() => constants.ERRORS.PROPERTY_IS_EMPTY('Text')),
             postId: Joi.string().required(),
         }
         return Joi.validate(comment, schema);
@@ -90,12 +88,13 @@ function Validate(){
     },
     this.sendError = (error, res) => {
         let message = error;
-        if(error.details) {
-            message = error.details[0].message;
-        }
+        // if(error.details) {
+        //     message = error.details[0].message;
+        // }
         if(error.message){
-            message = error.message;
+            message = error.message.substring(error.message.indexOf('[')+1, error.message.indexOf(']'));
         }
+
         switch(message){
             case constants.ERRORS.NO_FOUND_FOLLOWS:
             case constants.ERRORS.NO_FOUND_POSTS:
