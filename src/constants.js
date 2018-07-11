@@ -37,7 +37,9 @@ const SUCCESSFULLY_SIGNED = 'Successfully signed';
 const SUCCESSFULLY_REMOVED_SUBSCRIPTION = 'Successfully removed subscription';
 const SUCCESSFULLY_ADDED = 'Successfully added';
 const SUCCESFULLY_UPDATED_POST = 'Succesfully updated post';
+const SUCCESSFULLY_REMOVED_POST = 'Successfully removed post';
 const SUCCESSFULLY_REMOVED_FAVORITE = 'Successfully removed favorite';
+
 
 const MESSAGE = {
     SUCCESSFULLY_SIGNED,
@@ -45,7 +47,8 @@ const MESSAGE = {
     SUCCESSFULLY_ADDED,
     NO_POSTS_YET,
     SUCCESFULLY_UPDATED_POST,
-    SUCCESSFULLY_REMOVED_FAVORITE
+    SUCCESSFULLY_REMOVED_FAVORITE,
+    SUCCESSFULLY_REMOVED_POST
 }
 
 const ADD_FOLLOW = "ADD_FOLLOW";

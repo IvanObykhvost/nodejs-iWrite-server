@@ -109,4 +109,47 @@ UserRepository.getFollowFlag = (token, id) => {
         )
 }
 
+UserRepository.saveOneUser = (user) => {
+    return user.save()
+        .then(user => {
+            if(!user) return Promise.reject(constants.ERRORS.NO_FOUND_USER)
+            if(user.errors) return Promise.reject(user.errors);
+            return user;
+        });
+}
+
+UserRepository.removeFavoriteFromUsers = (findParams) => {
+    return UserRepository.getUsersByParams(findParams)
+        .then(
+            users => {
+                users = users.map(user => {
+                    user.favorites.pull(findParams.favorites);
+                    return user;
+                });
+                return UserRepository.saveAllUsers(users, users.length);
+            },
+            error => {
+                if(error === constants.ERRORS.NO_FOUND_USER)
+                    return constants.MESSAGE.SUCCESSFULLY_REMOVED_FAVORITE 
+                throw error
+            }
+        )
+        .then(message => message)
+        .catch(e => Promise.reject(e))
+}
+
+UserRepository.saveAllUsers = (users, length) => {
+    if(length === 0)
+        return constants.MESSAGE.SUCCESSFULLY_REMOVED_FAVORITE;
+    let user = users.pop();
+    return UserRepository.saveOneUser(user)
+        .then(
+            user => UserRepository.saveAllUsers(users, --length),
+            error => Promise.reject(error)
+        )
+
+}
+
+
+
 module.exports = UserRepository;

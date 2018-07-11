@@ -70,5 +70,19 @@ CommentRepository.getOneCommentByParams = (findParams) => {
         });
 }
 
+ /**
+* Delete many comments 
+* @method  deleteComments
+* @param {Object} findParams object by find {name : 'Jack'}.
+* @returns {Array[Objects]} posts or error
+*/
+CommentRepository.removeComments = (findParams) => {
+    return CommentRepository.deleteMany(findParams)
+        .then(comments => {
+            if(!comments) return Promise.reject(constants.ERRORS.NO_FOUND_COMMENTS)
+            if(comments.errors) return Promise.reject(comments.errors);
+            return comments;
+        });
+}
 
 module.exports = CommentRepository;

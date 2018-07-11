@@ -47,6 +47,14 @@ function Serialize(){
             }
         };
     },
+    this.getCurrentUser = (user) => {
+        return {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            token:  user.token
+        }
+    },
     this.getSetting = (user) => {
         return {
             user: {
@@ -84,6 +92,12 @@ function Serialize(){
             message: post.message,
             tags: post.tags,
         }
+    },
+
+    this.getCurrentUserFromBody = (body) => {
+        let currentUser = body.currentUser;
+        delete body.currentUser;
+        return {body, currentUser};
     },
     this.success = (success) => {
         return {

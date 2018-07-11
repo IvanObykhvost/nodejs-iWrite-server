@@ -12,7 +12,7 @@ function AuthController(){
         UserRepository.getOneUserByParams({token})
             .then(
                 user => {
-                    req.body.currentUser = serialize.getUser(user).user;
+                    req.body.currentUser = serialize.getCurrentUser(user);
                     next();
                 },
                 error => {throw error}

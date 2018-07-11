@@ -51,6 +51,15 @@ PostSchema.pre('findOneAndUpdate', function(next) {
     next();
 });
 
+PostSchema.pre('save', function(next) {
+    this.populate('author').execPopulate();
+    next();
+});
+
+PostSchema.pre('remove', function(next) {
+    next();
+});
+
 const PostRepository = mongoose.model('posts', PostSchema);
 
 /**
@@ -86,7 +95,25 @@ PostRepository.getOnePostByParams = (findParams) => {
 PostRepository.updateOnePostByParams = (findParams, post) => {
     return PostRepository.findOneAndUpdate(findParams, post, {new: true})
         .then(post => {
-            if(!post) return Promise.reject(constants.ERRORS.NO_FOUND_POST)
+            if(!post) return Promise.reject(constants.ERRORS.NO_FOUND_POST);
+            if(post.errors) return Promise.reject(post.errors);
+            return post;
+        });
+}
+
+PostRepository.saveOnePost = (post) => {
+    return post.save()
+        .then(post => {
+            if(!post) return Promise.reject(constants.ERRORS.NO_FOUND_POST);
+            if(post.errors) return Promise.reject(post.errors);
+            return post;
+        });
+}
+
+PostRepository.removeOnePost = (post) => {
+    return post.remove()
+        .then(post => {
+            if(!post) return Promise.reject(constants.ERRORS.NO_FOUND_POST);
             if(post.errors) return Promise.reject(post.errors);
             return post;
         });

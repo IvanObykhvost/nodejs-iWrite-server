@@ -119,42 +119,34 @@ function PostController(){
             .catch(e => validate.sendError(e, res));
     },
     this.addPost = (req, res) => {
-        const token = req.headers.authorization;
-        const {error} = validate.byPost(req.body);
+        const { body, currentUser} = serialize.getCurrentUserFromBody(req.body);
+        const {error} = validate.byPost(body);
         if(error) return validate.sendError(error, res);
-
-        UserRepository.getOneUserByParams({token})
+        
+        let post = new PostRepository({
+            ...req.body,
+            author: currentUser.id
+        });
+        PostRepository.saveOnePost(post)
             .then(
-                user => {
-                    let post = new PostRepository({
-                        ...req.body,
-                        author: user._id
-                    });
-                    return post.save();
-                },
+                post => res.send({post: serialize.getPost(post)}),
                 error => {throw error}
-            )
-            .then(
-                post => {
-                    if(post.errors) throw post.errors;
-                    res.send({post: serialize.getPost(post)})
-                }
             )   
             .catch(e => validate.sendError(e, res))
     },
     this.updatePost = (req, res) => {
-        const token = req.headers.authorization;
         let {error: errorId} = validate.byId(req.params);
         if(errorId) return validate.sendError(errorId, res);
         
-        let post = serialize.setUpdatePost(req.body);
+        const { body, currentUser} = serialize.getCurrentUserFromBody(req.body);
+        let post = serialize.setUpdatePost(body);
         let {error} = validate.byUpdatePost(post);
         if(error) return validate.sendError(error, res);
 
         PostRepository.getOnePostByParams({_id: post.id})
             .then(
                 post => {
-                    if(token !== post.author.token) 
+                    if(currentUser.token !== post.author.token) 
                         throw constants.ERRORS.NO_POST_OWNER;
                     return post.id;
                 },
@@ -170,9 +162,39 @@ function PostController(){
             .catch(e => validate.sendError(e, res))
     },
     this.deletePost = (req, res) => {
-        const token = req.headers.authorization;
+        const currentUser = req.body.currentUser;
+        const postId = req.params.id;
         let {error} = validate.byId(req.params);
         if(error) return validate.sendError(error, res);
+
+        let currentPost = null;
+
+        PostRepository.getOnePostByParams({_id: postId})
+            .then(
+                post => {
+                    if(post.author.id !== currentUser.id)
+                        throw constants.ERRORS.NO_POST_OWNER;
+                    currentPost = post;
+                    return UserRepository.removeFavoriteFromUsers({favorites: postId});
+                },
+                error =>  {throw error}
+            )
+            .then(
+                () => {
+                    let ids = currentPost.comments.map(comment => comment.id);
+                    return CommentRepository.removeComments({_id: {$in : ids}});
+                },
+                error =>  {throw error}
+            )
+            .then(
+                () => PostRepository.removeOnePost(currentPost),
+                error =>  {throw error}
+            )
+            .then(
+                () => res.send(serialize.success(constants.MESSAGE.SUCCESSFULLY_REMOVED_POST)),
+                error =>  {throw error}
+            )
+            .catch(e => validate.sendError(e, res))
     },
 
     //Favorite
@@ -243,7 +265,10 @@ function PostController(){
 
         PostRepository.getOnePostByParams({_id: postId})
             .then(
-                post => res.send({comments: post.comments.map(comment => serialize.getComment(comment))}),
+                post => {
+                    post.comments = post.comments.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                    res.send({comments: post.comments.map(comment => serialize.getComment(comment))})
+                },
                 error => {throw error}
             )
             .catch(e => validate.sendError(e, res))
