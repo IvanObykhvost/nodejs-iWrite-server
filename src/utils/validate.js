@@ -62,7 +62,7 @@ function Validate(){
         const schema = {
             image: Joi.string().trim().allow(""),
             name: Joi.string().required().error(() => constants.ERRORS.PROPERTY_IS_EMPTY('Username')),
-            email: Joi.string().email().required(),
+            email: Joi.string().email().required().error(() => constants.ERRORS.PROPERTY_IS_EMPTY('Email')),
             bio: Joi.string().trim().allow("")
         }
         return Joi.validate(user, schema);

@@ -57,12 +57,10 @@ function Serialize(){
     },
     this.getSetting = (user) => {
         return {
-            user: {
                 name: user.name,
                 email: user.email,
                 bio: user.bio,
                 image: user.image,
-            }
         }
     },
     this.getProfile = (user) => {

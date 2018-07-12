@@ -58,7 +58,7 @@ function UserController(){
     },
     this.saveUser = (req, res) => { 
         const token = req.headers.authorization;
-        const settingsUser = serialize.getSetting(req.body.user).user;
+        const settingsUser = serialize.getSetting(req.body.user);
         let {error} = validate.byUpdateUser(settingsUser);
         if(error) return validate.sendError(error, res);
 
