@@ -3,6 +3,7 @@ const constants = require('../constants');
 const validate = require('../utils/validate').Validate;
 const serialize = require('../utils/serialize').Serialize;
 const generate = require('../utils/genarateToken').Generate;
+const bcrypt = require('bcrypt-nodejs');
 
 function UserController(){
     this.getUserByToken = (req, res) => {
@@ -27,6 +28,7 @@ function UserController(){
                 error => {
                     if(error === constants.ERRORS.NO_FOUND_USER){
                         let user = new UserRepository(req.body);
+                        user.password = bcrypt.hashSync(user.password);
                         return user.save();
                     }
                     throw error;
@@ -42,11 +44,18 @@ function UserController(){
         let {error} = validate.byLogin(req.body, res);
         if(error) return validate.sendError(error, res);
 
-        UserRepository.getOneUserByParams({email: req.body.email, password: req.body.password})
+        UserRepository.getOneUserByParams({email: req.body.email})
             .then(
                 user => {
-                    user.token = generate.token();
-                    return UserRepository.saveOneUser(user);
+                    let comparePass = bcrypt.compare(req.body.password, user.password);
+                    if(comparePass){
+                        user.token = generate.token();
+                        return UserRepository.saveOneUser(user);
+                    }
+                    else {
+                        throw constants.ERRORS.INVALID_CREDENTIALS;
+                    }
+                    
                 },
                 error => {throw error}
             )
