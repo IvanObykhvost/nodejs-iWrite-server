@@ -22,22 +22,31 @@ function UserController(){
         let {error} = validate.byRegister(req.body);
         if(error) return validate.sendError(error, res);
 
-        UserRepository.getUsersByParams({ $or: [{email: req.body.email}, {name: req.body.name}]})
+        UserRepository.getOneUserByParams({email: req.body.email})
             .then(
                 () => { throw constants.ERRORS.EMAIL_ALREADY },
                 error => {
                     if(error === constants.ERRORS.NO_FOUND_USER){
-                        let user = new UserRepository(req.body);
-                        user.password = bcrypt.hashSync(user.password);
-                        return user.save();
+                        return UserRepository.getOneUserByParams({name: req.body.name});
                     }
                     throw error;
                 }
             )
-            .then(user => {
-                    if(user.errors) throw user.errors;
-                    res.send(serialize.getUser(user))
-            })
+            .then(
+                () => { throw constants.ERRORS.USERNAME_ALREADY_USE },
+                error => {
+                    if(error === constants.ERRORS.NO_FOUND_USER){
+                        let user = new UserRepository(req.body);
+                        user.password = bcrypt.hashSync(user.password);
+                        return UserRepository.saveOneUser(user);
+                    }
+                    throw error;
+                }
+            )
+            .then(
+                user => res.send(serialize.getUser(user)),
+                error => {throw error}
+            )
             .catch(e => validate.sendError(e, res));
     },
     this.loginUser = (req, res) => { 
@@ -47,7 +56,7 @@ function UserController(){
         UserRepository.getOneUserByParams({email: req.body.email})
             .then(
                 user => {
-                    let comparePass = bcrypt.compare(req.body.password, user.password);
+                    let comparePass = bcrypt.compareSync(req.body.password, user.password);
                     if(comparePass){
                         user.token = generate.token();
                         return UserRepository.saveOneUser(user);

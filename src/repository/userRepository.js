@@ -146,7 +146,6 @@ UserRepository.saveAllUsers = (users, length) => {
             user => UserRepository.saveAllUsers(users, --length),
             error => Promise.reject(error)
         )
-
 }
 
 
