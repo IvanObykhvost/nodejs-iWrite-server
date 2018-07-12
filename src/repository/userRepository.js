@@ -9,7 +9,7 @@ const option = {
 
 mongoose.connect(url, option, (error) => {
     if(error) console.log(error);
-    else console.log("UserController connected");
+    else console.log("Connected with DB");
 })
 
 const UserSchema = new mongoose.Schema({

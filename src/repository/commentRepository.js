@@ -1,15 +1,5 @@
 const constants = require('../constants');
-
 const mongoose = require('mongoose');
-const url = "mongodb://127.0.0.1:27017/node";
-const option = { 
-    useNewUrlParser: true 
-}
-
-mongoose.connect(url, option, (error) => {
-    if(error) console.log(error);
-    else console.log("CommentRepository connected");
-});
 
 const CommentSchema = new mongoose.Schema({
     text: {type: String, required: true},

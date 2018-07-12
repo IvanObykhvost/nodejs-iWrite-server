@@ -17,6 +17,7 @@ const AuthController = require('./controllers/authController');
 const UserController = require('./controllers/userController');
 const PostController = require('./controllers/postController');
 const ProfileController = require('./controllers/profileController');
+const TagController = require('./controllers/tagController');
 
 //UserController
 app.get('/api/user', UserController.getUserByToken);
@@ -43,6 +44,9 @@ app.delete('/api/post/:id/comments/:commentId', AuthController.authentication, P
 app.get('/api/profile/:username', ProfileController.getProfile);
 app.post('/api/profile/:username/follow', AuthController.authentication, ProfileController.follow);
 app.delete('/api/profile/:username/unfollow', AuthController.authentication, ProfileController.unfollow);
+
+//TagController
+app.get('/api/tags', TagController.getPopularTags);
 
 const port = process.env.POR || 4081;
 app.listen(port, () => console.log(`Listening on port ${port}`));

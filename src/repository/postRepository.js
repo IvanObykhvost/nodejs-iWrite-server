@@ -1,15 +1,6 @@
 const constants = require('../constants');
-
 const mongoose = require('mongoose');
-const url = "mongodb://127.0.0.1:27017/node";
-const option = { 
-    useNewUrlParser: true 
-}
 
-mongoose.connect(url, option, (error) => {
-    if(error) console.log(error);
-    else console.log("PostRepository connected");
-});
 
 const PostSchema = new mongoose.Schema({
     title: {type: String, required: true},
@@ -23,7 +14,7 @@ const PostSchema = new mongoose.Schema({
     favouritesCount: {type: Number, default: 0},
     createdAt: {type: Date, default: Date.now},
     updatedAt: {type: Date, default: Date.now},
-    tags: {type: String, required: false},
+    tags: [{ type: String, default: [] }],
     author: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'users'

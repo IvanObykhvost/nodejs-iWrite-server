@@ -15,6 +15,9 @@ function PostController(){
         name = req.query.favorited;
         if(name) return this.getAllPostsByParams({name}, res, constants.OPERATION.GET_POSTS_BY_FEVORITED);
 
+        let tag = req.query.tag;
+        if(tag) return this.getAllPostsByTag(tag, res);
+
         let {error} = validate.byToken(token);
         if(error) {
             PostRepository.getPostsByParams({})
@@ -106,6 +109,14 @@ function PostController(){
             )
             .catch(e => validate.sendError(e, res));
     },
+    this.getAllPostsByTag = (tags, res) => {
+        PostRepository.getPostsByParams({tags})
+            .then(
+                posts => res.send(posts.map(post => serialize.getPost(post))),
+                error => { throw error }
+            )
+            .catch(e => validate.sendError(e, res));
+    },
     this.getPost = (req, res) => {
         const id = req.params.id;
         const {error} = validate.byId({id});
@@ -139,8 +150,8 @@ function PostController(){
         if(errorId) return validate.sendError(errorId, res);
         
         const { body, currentUser} = serialize.getCurrentUserFromBody(req.body);
-        let post = serialize.setUpdatePost(body);
-        let {error} = validate.byUpdatePost(post);
+        let updatePost = serialize.setUpdatePost(body);
+        let {error} = validate.byUpdatePost(updatePost);
         if(error) return validate.sendError(error, res);
 
         PostRepository.getOnePostByParams({_id: post.id})
@@ -148,13 +159,10 @@ function PostController(){
                 post => {
                     if(currentUser.token !== post.author.token) 
                         throw constants.ERRORS.NO_POST_OWNER;
-                    return post.id;
+                    return PostRepository.updateOnePostByParams({_id: post.id}, updatePost)
                 },
                 error => {throw error}
             )  
-            .then(
-                id => PostRepository.updateOnePostByParams({_id: id}, post)
-            )
             .then(
                 () => res.send(serialize.success(constants.MESSAGE.SUCCESFULLY_UPDATED_POST)),
                 error =>  {throw error}
