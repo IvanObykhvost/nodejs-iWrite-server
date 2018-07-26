@@ -29,6 +29,9 @@ const UserSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'posts'
     }]
+},
+{
+    versionKey: false
 });
 
 UserSchema.pre('findOne', function() {
@@ -56,7 +59,7 @@ UserRepository.getOneUserByParams = (findParams) => {
             if(user.errors) return Promise.reject(user.errors);
             return user;
         });
-},
+};
 
 /**
 * Use by looking for many users
@@ -147,6 +150,17 @@ UserRepository.saveAllUsers = (users, length) => {
             error => Promise.reject(error)
         )
 }
+
+// UserRepository.saveAllUsers = (users, length) => {
+//     if(length === 0)
+//         return constants.MESSAGE.SUCCESSFULLY_REMOVED_FAVORITE;
+//     let user = users.pop();
+//     return UserRepository.saveOneUser(user)
+//         .then(
+//             user => UserRepository.saveAllUsers(users, --length),
+//             error => Promise.reject(error)
+//         )
+// }
 
 
 

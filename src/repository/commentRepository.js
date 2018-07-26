@@ -8,6 +8,9 @@ const CommentSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'users'
     }
+},
+{
+    versionKey: false
 });
 
 CommentSchema.pre('find', function() {

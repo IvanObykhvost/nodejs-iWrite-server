@@ -1,5 +1,7 @@
 const constants = require('../constants');
 const mongoose = require('mongoose');
+const CommentRepository = require('./commentRepository');
+const TagRepository = require('./tagRepository');
 
 
 const PostSchema = new mongoose.Schema({
@@ -14,7 +16,11 @@ const PostSchema = new mongoose.Schema({
     favouritesCount: {type: Number, default: 0},
     createdAt: {type: Date, default: Date.now},
     updatedAt: {type: Date, default: Date.now},
-    tags: [{ type: String, default: [] }],
+    // tags: [{ type: String, default: "" }],
+    tags:  [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'tags'
+    }],
     author: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'users'
@@ -23,18 +29,23 @@ const PostSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'comments'
     }]
+},
+{
+    versionKey: false
 });
 
 PostSchema.pre('find', function() {
     this.populate('author');
     this.populate('favorites');
     this.populate('comments');
+    this.populate('tags');
 });
 
 PostSchema.pre('findOne', function() {
     this.populate('author');
     this.populate('favorites');
     this.populate('comments');
+    this.populate('tags');
 });
 
 PostSchema.pre('findOneAndUpdate', function(next) {
@@ -44,11 +55,25 @@ PostSchema.pre('findOneAndUpdate', function(next) {
 
 PostSchema.pre('save', function(next) {
     this.populate('author').execPopulate();
+
     next();
 });
 
 PostSchema.pre('remove', function(next) {
-    next();
+    let commentsId = this.comments.map(comment => comment.id);
+    let tagsId = this.tags.map(tag => tag.id);
+    return CommentRepository.removeComments({_id: {$in : commentsId}})
+        .then(
+            () => {
+                if(tagsId.length !== 0)
+                    return TagRepository.deleleRefPostByParams({_id: {$in: tagsId}}, this.id)
+            },
+            error => Promise.reject(error)
+        )
+        .then(
+            () => next(),
+            error => Promise.reject(error)
+        )
 });
 
 const PostRepository = mongoose.model('posts', PostSchema);
@@ -68,6 +93,21 @@ PostRepository.getPostsByParams = (findParams) => {
         });
 }
 
+PostRepository.getPostsPaginationByParams = (findParams, aggregate) => {
+    let request = PostRepository
+        .find(findParams)
+        .sort('-createdAt')
+        .skip(Number(aggregate.offset))
+        .limit(Number(aggregate.limit))
+        .exec();
+
+    return request
+        .then(posts => {
+            if(posts.length === 0) return Promise.reject(constants.ERRORS.NO_FOUND_POSTS);
+            if(posts.errors) return Promise.reject(posts.errors);
+            return posts;
+        })
+}
  /**
 * Use by looking for Post
 * @method  getOnePostByParams

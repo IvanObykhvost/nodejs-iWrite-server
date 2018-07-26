@@ -44,7 +44,10 @@ function UserController(){
                 }
             )
             .then(
-                user => res.send(serialize.getUser(user)),
+                user => res.send({
+                    user: serialize.getUser(user).user,
+                    success: serialize.success(constants.MESSAGE.SUCCESSFULLY_LOGIN).success
+                }),
                 error => {throw error}
             )
             .catch(e => validate.sendError(e, res));
@@ -69,7 +72,10 @@ function UserController(){
                 error => {throw error}
             )
             .then(
-                user => res.send(serialize.getUser(user)),
+                user => res.send({
+                    user: serialize.getUser(user).user,
+                    success: serialize.success(constants.MESSAGE.SUCCESSFULLY_LOGIN).success
+                }),
                 error => {throw error}
             )
             .catch(e => validate.sendError(e, res));
@@ -106,7 +112,10 @@ function UserController(){
                 }
             )
             .then(
-                user => res.send(serialize.getUser(user)),
+                user => res.send({
+                    user: serialize.getUser(user).user,
+                    success: serialize.success(constants.MESSAGE.SUCCESFULLY_UPDATED_USER).success
+                }),
                 error =>  {throw error}
             )
             .catch(e => validate.sendError(e, res));

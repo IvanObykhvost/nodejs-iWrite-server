@@ -31,7 +31,7 @@ function Validate(){
             title: Joi.string().required().error(() => constants.ERRORS.PROPERTY_IS_EMPTY('Title')),
             topic: Joi.string().required().error(() => constants.ERRORS.PROPERTY_IS_EMPTY('Topic')),
             message: Joi.string().required().error(() => constants.ERRORS.PROPERTY_IS_EMPTY('Message')),
-            tags: Joi.string()
+            tags: Joi.array()
         }
         return Joi.validate(post, schema);
     },
@@ -41,7 +41,7 @@ function Validate(){
             title: Joi.string().required().error(() => constants.ERRORS.PROPERTY_IS_EMPTY('Title')),
             topic: Joi.string().required().error(() => constants.ERRORS.PROPERTY_IS_EMPTY('Topic')),
             message: Joi.string().required().error(() => constants.ERRORS.PROPERTY_IS_EMPTY('Message')),
-            tags: Joi.string()
+            tags: Joi.array()
         }
         return Joi.validate(post, schema);
     },
@@ -97,9 +97,12 @@ function Validate(){
 
         switch(message){
             case constants.ERRORS.NO_FOUND_FOLLOWS:
-            case constants.ERRORS.NO_FOUND_POSTS:
             case constants.ERRORS.NO_FOUND_COMMENTS:
                 res.send([]);
+                break;
+
+            case constants.ERRORS.NO_FOUND_POSTS:
+                res.send({posts: [], count: 0});
                 break;
                 
             default:

@@ -5,7 +5,7 @@ function Serialize(){
             title: post.title,
             topic: post.topic,
             message: post.message,
-            tags: post.tags,
+            tags: post.tags.map(tag => tag.text),
             favorited: post.favorited,
             favouritesCount: post.favouritesCount,
             createdAt: post.createdAt,
