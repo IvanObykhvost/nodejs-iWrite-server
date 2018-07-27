@@ -19,7 +19,7 @@ const UserSchema = new mongoose.Schema({
     createdAt: {type: Date, default: Date.now},
     updatedAt: {type: Date, default: Date.now},
     bio: {type: String, default: ''},
-    image: {type: String, default: ''},
+    image: {type: String, default: 'http://getdrawings.com/img/user-silhouette-icon-3.png'},
     token: {type: String, default: generate.token()},
     follows: [{
         type: mongoose.Schema.Types.ObjectId,

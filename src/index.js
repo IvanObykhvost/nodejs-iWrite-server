@@ -18,6 +18,7 @@ const UserController = require('./controllers/userController');
 const PostController = require('./controllers/postController');
 const ProfileController = require('./controllers/profileController');
 const TagController = require('./controllers/tagController');
+const CommentController = require('./controllers/commentController');
 
 //UserController
 app.get('/api/user', UserController.getUserByToken);
@@ -36,9 +37,9 @@ app.delete('/api/post/:id', AuthController.authentication, PostController.delete
 app.post('/api/post/:id/favorite', AuthController.authentication, PostController.addFavorite);
 app.delete('/api/post/:id/unfavorite', AuthController.authentication, PostController.deleteFavorite);
 //conmments
-app.get('/api/post/:id/comments', PostController.getComments);
-app.post('/api/post/:id/comments', AuthController.authentication, PostController.addComment);
-app.delete('/api/post/:id/comments/:commentId', AuthController.authentication, PostController.deleteComment);
+app.get('/api/post/:id/comments', CommentController.getComments);
+app.post('/api/post/:id/comments', AuthController.authentication, CommentController.addComment);
+app.delete('/api/post/:id/comments/:commentId', AuthController.authentication, CommentController.deleteComment);
 
 //ProfileController
 app.get('/api/profile/:username', ProfileController.getProfile);

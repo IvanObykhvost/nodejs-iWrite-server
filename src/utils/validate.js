@@ -96,11 +96,11 @@ function Validate(){
         }
 
         switch(message){
-            case constants.ERRORS.NO_FOUND_FOLLOWS:
             case constants.ERRORS.NO_FOUND_COMMENTS:
                 res.send([]);
                 break;
 
+            case constants.ERRORS.NO_FOUND_FOLLOWS:
             case constants.ERRORS.NO_FOUND_POSTS:
                 res.send({posts: [], count: 0});
                 break;

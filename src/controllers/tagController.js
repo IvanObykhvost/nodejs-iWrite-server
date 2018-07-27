@@ -20,10 +20,6 @@ function TagController(){
             .catch(e => validate.sendError(e, res))
     },
 
-    this.getPopularTag = (req, res) => {
-        
-    },
-
     this.saveTagsByPostId = (tags, postId) => {
         let ids = [];
 

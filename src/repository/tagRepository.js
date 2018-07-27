@@ -24,9 +24,13 @@ const TagRepository = mongoose.model('tags', TagSchema);
 TagRepository.getPopularTagsByParams = () => {
 
     let tags = TagRepository
-        .aggregate()
+        .aggregate([{
+            '$match': {
+                'popular': {'$gte' : 1}
+            }
+        }])
         .sort({ popular: 'desc', text: 'asc'})
-        .limit(10)
+        .limit(20)
         .exec();
 
     return tags

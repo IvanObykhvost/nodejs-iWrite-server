@@ -1,6 +1,7 @@
 const PostRepository = require('../repository/postRepository');
 const UserRepository = require('../repository/userRepository');
 const CommentRepository = require('../repository/commentRepository');
+const TagRepository = require('../repository/tagRepository');
 const TagController = require('../controllers/tagController');
 const constants = require('../constants');
 const validate = require('../utils/validate').Validate;
@@ -13,7 +14,7 @@ function PostController(){
             limit: req.query.limit, 
             offset: req.query.offset
         };
-        let count = 0;
+        
 
         let name = req.query.author;
         if(name) 
@@ -25,10 +26,11 @@ function PostController(){
 
         let tag = req.query.tag;
         if(tag) 
-            return this.getAllPostsByTag(tag, res);
+            return this.getAllPostsByTag(tag, res, aggregate);
 
         let {error} = validate.byToken(token);
         if(error) {
+            let count = 0;
             PostRepository.getPostsByParams({})
                 .then(
                     posts => {
@@ -155,10 +157,29 @@ function PostController(){
             )
             .catch(e => validate.sendError(e, res));
     },
-    this.getAllPostsByTag = (tags, res) => {
-        PostRepository.getPostsByParams({tags})
+    this.getAllPostsByTag = (tags, res, aggregate) => {
+        let count = 0;
+        let tagId;
+        TagRepository.getOneTagbyParams({text: tags})
             .then(
-                posts => res.send(posts.map(post => serialize.getPost(post))),
+                tag => {
+                    tagId = tag._id;
+                    return PostRepository.getPostsByParams({tags: tagId})
+                },
+                error => { throw error }
+            )
+            .then(
+                posts => {
+                    count = posts.length;
+                    return PostRepository.getPostsPaginationByParams({tags: tagId}, aggregate);
+                },
+                error => { throw error }
+            )
+            .then(
+                posts => res.send({
+                    posts: posts.map(post => serialize.getPost(post)),
+                    count
+                }),
                 error => { throw error }
             )
             .catch(e => validate.sendError(e, res));
