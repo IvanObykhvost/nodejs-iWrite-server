@@ -101,6 +101,9 @@ function Validate(){
                 break;
 
             case constants.ERRORS.NO_FOUND_FOLLOWS:
+                res.send({followers: [], count: 0});
+                break;
+            case constants.ERRORS.NO_FOUND_FEED:
             case constants.ERRORS.NO_FOUND_POSTS:
                 res.send({posts: [], count: 0});
                 break;

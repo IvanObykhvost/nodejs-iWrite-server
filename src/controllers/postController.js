@@ -14,19 +14,6 @@ function PostController(){
             limit: req.query.limit, 
             offset: req.query.offset
         };
-        
-
-        let name = req.query.author;
-        if(name) 
-            return this.getAllPostsByParams({name}, res, constants.OPERATION.GET_POSTS_BY_AUTHOR, aggregate);
-
-        name = req.query.favorited;
-        if(name) 
-            return this.getAllPostsByParams({name}, res, constants.OPERATION.GET_POSTS_BY_FAVORITED, aggregate);
-
-        let tag = req.query.tag;
-        if(tag) 
-            return this.getAllPostsByTag(tag, res, aggregate);
 
         let {error} = validate.byToken(token);
         if(error) {
@@ -49,11 +36,23 @@ function PostController(){
                 .catch(e => validate.sendError(e, res));
         }
         else {
-            return this.getAllPostsByParams({token}, res, constants.OPERATION.GET_POSTS_BY_TOKEN, aggregate);
+            let name = req.query.author;
+            if(name) 
+                return this.getAllPostsByParams({name}, token, res, constants.OPERATION.GET_POSTS_BY_AUTHOR, aggregate);
+
+            name = req.query.favorited;
+            if(name) 
+                return this.getAllPostsByParams({name}, token, res, constants.OPERATION.GET_POSTS_BY_FAVORITED, aggregate);
+
+            let tag = req.query.tag;
+            if(tag) 
+                return this.getAllPostsByTag(tag, token, res, aggregate);
+
+            return this.getAllPostsByParams({token}, token, res, constants.OPERATION.GET_POSTS_BY_TOKEN, aggregate);
         }
         
     },
-    this.getAllPostsByParams = (params, res, action, aggregate) => {
+    this.getAllPostsByParams = (params, token, res, action, aggregate) => {
         if(action === constants.OPERATION.GET_POSTS_BY_AUTHOR || action === constants.OPERATION.GET_POSTS_BY_FAVORITED){
             let {error} = validate.byUsername(params);
             if(error) validate.sendError(error, res);
@@ -65,7 +64,6 @@ function PostController(){
         UserRepository.getOneUserByParams(params)
             .then(
                 user => {
-                    currentUser = user;
                     if(action === constants.OPERATION.GET_POSTS_BY_AUTHOR){
                         paramsPosts = {author: user.id}
                     }
@@ -73,7 +71,14 @@ function PostController(){
                 error => { throw error }
             )
             .then(
-                () => PostRepository.getPostsByParams(paramsPosts)
+                () => UserRepository.getOneUserByParams({token})
+            )
+            .then(
+                user => {
+                    currentUser = user;
+                    return PostRepository.getPostsByParams(paramsPosts)
+                },
+                error => { throw error }
             )
             .then(
                 posts => {
@@ -84,6 +89,9 @@ function PostController(){
                         }
                         return post;
                     });
+                    if(action === constants.OPERATION.GET_POSTS_BY_AUTHOR){
+
+                    }
                     if(action === constants.OPERATION.GET_POSTS_BY_FAVORITED){
                         posts = posts.filter(post => {
                             if(post.favorited)
@@ -121,7 +129,7 @@ function PostController(){
             .then(
                 user => {
                     if(user.follows.length === 0)
-                        return Promise.reject(constants.ERRORS.NO_FOUND_FOLLOWS);
+                        return Promise.reject(constants.ERRORS.NO_FOUND_FEED);
                     currentUser = user;
                     return user.follows.map(user => user.id);
                 },
@@ -143,9 +151,9 @@ function PostController(){
             )
             .then(
                 posts => posts.map(post => {
-                        if(post.favorites.length > 0)
-                            post.favorited = post.favorites.some(user => user.id === currentUser.id);
-                        return post;
+                    if(post.favorites.length > 0)
+                        post.favorited = post.favorites.some(user => user.id === currentUser.id);
+                    return post;
                 }),
                 error => { throw error }
             )
@@ -157,10 +165,19 @@ function PostController(){
             )
             .catch(e => validate.sendError(e, res));
     },
-    this.getAllPostsByTag = (tags, res, aggregate) => {
+    this.getAllPostsByTag = (tags, token, res, aggregate) => {
         let count = 0;
         let tagId;
-        TagRepository.getOneTagbyParams({text: tags})
+        let currentUser = null;
+
+        UserRepository.getOneUserByParams({token})
+            .then(
+                user => {
+                    currentUser = user;
+                    return TagRepository.getOneTagbyParams({text: tags});
+                },
+                error => { throw error }
+            )
             .then(
                 tag => {
                     tagId = tag._id;
@@ -176,10 +193,18 @@ function PostController(){
                 error => { throw error }
             )
             .then(
-                posts => res.send({
-                    posts: posts.map(post => serialize.getPost(post)),
-                    count
-                }),
+                posts => {
+                    posts = posts.map(post => {
+                        if(post.favorites.length > 0)
+                            post.favorited = post.favorites.some(user => user.id === currentUser.id);
+                        return post;
+                    });
+
+                    res.send({
+                        posts: posts.map(post => serialize.getPost(post)),
+                        count
+                    })      
+                },
                 error => { throw error }
             )
             .catch(e => validate.sendError(e, res));

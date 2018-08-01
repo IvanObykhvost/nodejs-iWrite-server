@@ -76,6 +76,22 @@ UserRepository.getUsersByParams = (findParams) => {
         });
 };
 
+UserRepository.getUsersPaginationByParams = (findParams, aggregate) => {
+    let request = UserRepository
+        .find(findParams)
+        .sort('-name')
+        .skip(Number(aggregate.offset))
+        .limit(Number(aggregate.limit))
+        .exec();
+
+    return request
+        .then(users => {
+            if(!users.length) return Promise.reject(constants.ERRORS.NO_FOUND_USER);
+            if(users.errors) return Promise.reject(users.errors);
+            return users;
+        })
+}
+
 /**
 * Update one user by params
 * @method  updateOneUser
@@ -150,18 +166,6 @@ UserRepository.saveAllUsers = (users, length) => {
             error => Promise.reject(error)
         )
 }
-
-// UserRepository.saveAllUsers = (users, length) => {
-//     if(length === 0)
-//         return constants.MESSAGE.SUCCESSFULLY_REMOVED_FAVORITE;
-//     let user = users.pop();
-//     return UserRepository.saveOneUser(user)
-//         .then(
-//             user => UserRepository.saveAllUsers(users, --length),
-//             error => Promise.reject(error)
-//         )
-// }
-
 
 
 module.exports = UserRepository;

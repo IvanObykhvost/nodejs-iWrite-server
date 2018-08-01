@@ -14,6 +14,7 @@ const NO_FOUND_FOLLOWS = "No found follows user";
 const NO_FOUND_COMMENT = "No found comment";
 const NO_FOUND_COMMENTS = "No found comments";
 const NO_FOUND_TAG = "No found tag";
+const NO_FOUND_FEED = "No found feed";
 const INVALID_CREDENTIALS = "Invalid email or password";
 const EMAIL_ALREADY = "Sorry, such email is already registered";
 const USERNAME_ALREADY_USE = "Sorry, such username is already use";
@@ -32,6 +33,7 @@ const ERRORS = {
     NO_POST_OWNER,
     NO_FOUND_COMMENT,
     NO_FOUND_COMMENTS,
+    NO_FOUND_FEED,
     NO_FOUND_TAG,
     EMAIL_ALREADY,
     USERNAME_ALREADY_USE,

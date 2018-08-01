@@ -36,13 +36,16 @@ app.delete('/api/post/:id', AuthController.authentication, PostController.delete
 //favorites
 app.post('/api/post/:id/favorite', AuthController.authentication, PostController.addFavorite);
 app.delete('/api/post/:id/unfavorite', AuthController.authentication, PostController.deleteFavorite);
-//conmments
+
+//CommentController
 app.get('/api/post/:id/comments', CommentController.getComments);
 app.post('/api/post/:id/comments', AuthController.authentication, CommentController.addComment);
 app.delete('/api/post/:id/comments/:commentId', AuthController.authentication, CommentController.deleteComment);
 
 //ProfileController
 app.get('/api/profile/:username', ProfileController.getProfile);
+app.get('/api/profile/:username/followers', ProfileController.getFollowers);
+app.get('/api/profile/:username/following', ProfileController.getFollowing);
 app.post('/api/profile/:username/follow', AuthController.authentication, ProfileController.follow);
 app.delete('/api/profile/:username/unfollow', AuthController.authentication, ProfileController.unfollow);
 

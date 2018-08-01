@@ -89,7 +89,61 @@ function ProfileController(){
             users[1] = temp;
             return users;
         }
+    },
+    this.getFollowers = (req, res) => {
+        const name = req.params.username;
+        let aggregate = {
+            limit: req.query.limit, 
+            offset: req.query.offset
+        };
+        UserRepository.getOneUserByParams({name})
+            .then(
+                user => UserRepository.getUsersByParams({follows: user.id}),
+                error =>  {throw error}
+            )
+            .then(
+                users => {
+                    let count = users.length;
+                    users = users.slice(
+                        Number(aggregate.offset), Number(aggregate.offset)+Number(aggregate.limit)
+                    );
+                    res.send({
+                        followers: users.map(user => serialize.getFollower(user)),
+                        count
+                    })
+                },
+                error =>  {
+                    if(error === constants.ERRORS.NO_FOUND_USER)
+                        error = constants.ERRORS.NO_FOUND_FOLLOWS;
+                    throw error
+                }
+            )
+            .catch(e => validate.sendError(e, res));
+        
+    },
+    this.getFollowing = (req, res) => {
+        const name = req.params.username;
+        let aggregate = {
+            limit: req.query.limit, 
+            offset: req.query.offset
+        };
+        UserRepository.getOneUserByParams({name})
+            .then(
+                user => {
+                    let count = user.follows.length;
+                    user.follows = user.follows.slice(
+                        Number(aggregate.offset), Number(aggregate.offset)+Number(aggregate.limit)
+                    );
+                    res.send({
+                        followers: user.follows.map(follow => serialize.getFollower(follow)),
+                        count
+                    })
+                },
+                error =>  {throw error}
+            )
+            .catch(e => validate.sendError(e, res));
     }
+
 }
 
 module.exports = new ProfileController;

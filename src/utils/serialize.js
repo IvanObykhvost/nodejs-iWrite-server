@@ -57,10 +57,10 @@ function Serialize(){
     },
     this.getSetting = (user) => {
         return {
-                name: user.name,
-                email: user.email,
-                bio: user.bio,
-                image: user.image,
+            name: user.name,
+            email: user.email,
+            bio: user.bio,
+            image: user.image,
         }
     },
     this.getProfile = (user) => {
@@ -72,6 +72,13 @@ function Serialize(){
                 image: user.image,
                 following: user.following
             }
+        }
+    },
+    this.getFollower = user => {
+        return {
+            name: user.name,
+            bio: user.bio,
+            image: user.image,
         }
     },
     this.getComment = (comment) => {

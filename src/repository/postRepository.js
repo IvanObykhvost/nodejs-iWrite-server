@@ -16,7 +16,6 @@ const PostSchema = new mongoose.Schema({
     favouritesCount: {type: Number, default: 0},
     createdAt: {type: Date, default: Date.now},
     updatedAt: {type: Date, default: Date.now},
-    // tags: [{ type: String, default: "" }],
     tags:  [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'tags'
