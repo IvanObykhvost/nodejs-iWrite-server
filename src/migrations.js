@@ -18,6 +18,16 @@ MongoClient.connect(url, option, function(err, db) {
 MongoClient.connect(url, option, function(err, db) {
     if (err) throw err;
     var dbo = db.db("node");
+    dbo.collection('users').updateMany({},{ $set: {"postCount": 0}},function(err, res){
+        if (err) throw err;
+        console.log(res.result.nModified + " document(s) updated");
+        db.close();
+    });
+});
+
+MongoClient.connect(url, option, function(err, db) {
+    if (err) throw err;
+    var dbo = db.db("node");
 
     dbo.createCollection('posts', function(err, res) {
         if (err) throw err;

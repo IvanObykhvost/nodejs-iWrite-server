@@ -24,7 +24,7 @@ const CommentController = require('./controllers/commentController');
 app.get('/api/user', UserController.getUserByToken);
 app.post('/api/register', UserController.registerUser);
 app.post('/api/login', UserController.loginUser);
-app.put('/api/user', AuthController.authentication, UserController.saveUser);
+app.put('/api/user', AuthController.authentication, UserController.saveUserSettings);
 
 //PostController
 app.get('/api/posts', PostController.getAllPosts);

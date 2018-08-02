@@ -3,8 +3,9 @@ const constants = require('../constants');
 const validate = require('../utils/validate').Validate;
 const serialize = require('../utils/serialize').Serialize;
 
-function ProfileController(){
-    this.getProfile = (req, res) => {
+class ProfileController {
+    
+    getProfile(req, res) {
         const name = req.params.username;
         let {error} = validate.byUsername({name});
         if(error) return validate.sendError(error, res);
@@ -21,32 +22,33 @@ function ProfileController(){
                 error => {throw error}
             )
             .then(
-                () => UserRepository.getFollowFlag(token, currentUser.id, res)
+                () => UserRepository.getOneFollowingFlag(token, currentUser.id, res)
             )
             .then(follow =>{
                 currentUser.following = follow;
                 res.send(serialize.getProfile(currentUser));
             })
             .catch(e => validate.sendError(e, res));
-    },
-    this.getProfileWithoutToken = (name, res) => {
+    }
+
+    getProfileWithoutToken(name, res) {
         UserRepository.getOneUserByParams({name})
             .then(
-                user => {
-                    user.following = false;
-                    res.send(serialize.getProfile(user));
-                }, 
+                user => res.send(serialize.getProfile(user)), 
                 error => {throw error}
             )
             .catch(e => validate.sendError(e, res));
-    },
-    this.follow = (req, res) => {
-        this.addOrDeleteFollow(req, res, constants.OPERATION.ADD_FOLLOW)
-    },
-    this.unfollow = (req, res) => {
+    }
+
+    follow(req, res) {
+        this.addOrDeleteFollow(req, res, constants.OPERATION.ADD_FOLLOWER)
+    }
+
+    unfollow(req, res) {
         this.addOrDeleteFollow(req, res, constants.OPERATION.DELETE_FOLLOW)
-    },
-    this.addOrDeleteFollow = (req, res, action) => {
+    }
+
+    addOrDeleteFollow(req, res, action) {
         const token = req.headers.authorization;
         const name = req.params.username;
         let error = validate.byUsername({name}).error;
@@ -60,12 +62,15 @@ function ProfileController(){
                     else{
                         let sortUsers = this.sortByToken(users, token);
 
-                        if(action === constants.OPERATION.ADD_FOLLOW)
-                            sortUsers[0].follows.push(sortUsers[1].id);
-                        else
-                            sortUsers[0].follows.pull(sortUsers[1].id);
-
-                        return sortUsers[0].save();
+                        if(action === constants.OPERATION.ADD_FOLLOWER){
+                            sortUsers[0].followings.push(sortUsers[1].id);
+                            sortUsers[1].followers.push(sortUsers[0].id);
+                        }
+                        else{
+                            sortUsers[0].followings.pull(sortUsers[1].id);
+                            sortUsers[1].followers.pull(sortUsers[0].id);
+                        }
+                        return UserRepository.saveAllUsers(sortUsers, sortUsers.length);
                     }
                 },
                 error =>  {throw error}
@@ -78,8 +83,66 @@ function ProfileController(){
                 }
             )
             .catch(e => validate.sendError(e, res));
-    },
-    this.sortByToken = (users, token) => {
+    }
+
+    getFollowers(req, res) {
+        const name = req.params.username;
+        const aggregate = {
+            limit: req.query.limit, 
+            offset: req.query.offset
+        };
+        UserRepository.getOneUserByParams({name})
+            .then(
+                user => {
+                    if(!user.followers.length) return Promise.reject(constants.ERRORS.NO_FOUND_FOLLOWERS);
+
+                    let count = user.followers.length;
+                    user.followers = user.followers.slice(
+                        Number(aggregate.offset), Number(aggregate.offset)+Number(aggregate.limit)
+                    );
+                    user.followers = user.followers.map(follower => {
+                        follower.following = user.followings.some(el => el.id === follower.id);
+                        return follower;
+                    });
+                    res.send({
+                        followers: user.followers.map(user => serialize.getFollower(user)),
+                        count
+                    })
+                },
+                error =>  {throw error}
+            )
+            .catch(e => validate.sendError(e, res));
+        
+    }
+
+    getFollowing(req, res) {
+        const name = req.params.username;
+        const aggregate = {
+            limit: req.query.limit, 
+            offset: req.query.offset
+        };
+        UserRepository.getOneUserByParams({name})
+            .then(
+                user => {
+                    const count = user.followings.length;
+                    user.followings = user.followings.slice(
+                        Number(aggregate.offset), Number(aggregate.offset)+Number(aggregate.limit)
+                    );
+                    user.followings = user.followings.map(follow => {
+                        follow.following = true;
+                        return follow;
+                    });
+                    res.send({
+                        followers: user.followings.map(follower => serialize.getFollower(follower)),
+                        count
+                    })
+                },
+                error =>  {throw error}
+            )
+            .catch(e => validate.sendError(e, res));
+    }
+
+    static sortByToken (users, token) {
         if(users[0].token === token){
             return users;
         }
@@ -89,61 +152,7 @@ function ProfileController(){
             users[1] = temp;
             return users;
         }
-    },
-    this.getFollowers = (req, res) => {
-        const name = req.params.username;
-        let aggregate = {
-            limit: req.query.limit, 
-            offset: req.query.offset
-        };
-        UserRepository.getOneUserByParams({name})
-            .then(
-                user => UserRepository.getUsersByParams({follows: user.id}),
-                error =>  {throw error}
-            )
-            .then(
-                users => {
-                    let count = users.length;
-                    users = users.slice(
-                        Number(aggregate.offset), Number(aggregate.offset)+Number(aggregate.limit)
-                    );
-                    res.send({
-                        followers: users.map(user => serialize.getFollower(user)),
-                        count
-                    })
-                },
-                error =>  {
-                    if(error === constants.ERRORS.NO_FOUND_USER)
-                        error = constants.ERRORS.NO_FOUND_FOLLOWS;
-                    throw error
-                }
-            )
-            .catch(e => validate.sendError(e, res));
-        
-    },
-    this.getFollowing = (req, res) => {
-        const name = req.params.username;
-        let aggregate = {
-            limit: req.query.limit, 
-            offset: req.query.offset
-        };
-        UserRepository.getOneUserByParams({name})
-            .then(
-                user => {
-                    let count = user.follows.length;
-                    user.follows = user.follows.slice(
-                        Number(aggregate.offset), Number(aggregate.offset)+Number(aggregate.limit)
-                    );
-                    res.send({
-                        followers: user.follows.map(follow => serialize.getFollower(follow)),
-                        count
-                    })
-                },
-                error =>  {throw error}
-            )
-            .catch(e => validate.sendError(e, res));
     }
-
 }
 
-module.exports = new ProfileController;
+module.exports = new ProfileController();

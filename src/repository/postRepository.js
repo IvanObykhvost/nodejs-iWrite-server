@@ -2,6 +2,7 @@ const constants = require('../constants');
 const mongoose = require('mongoose');
 const CommentRepository = require('./commentRepository');
 const TagRepository = require('./tagRepository');
+const UserRepository = require('./userRepository');
 
 
 const PostSchema = new mongoose.Schema({
@@ -54,8 +55,22 @@ PostSchema.pre('findOneAndUpdate', function(next) {
 
 PostSchema.pre('save', function(next) {
     this.populate('author').execPopulate();
-
-    next();
+    if(this.isNew){
+        UserRepository.getOneUserByParams({_id: this.author.id})
+            .then(
+                user => {
+                    user.postCount++;
+                    return UserRepository.saveOneUser(user);
+                },
+                error => Promise.reject(error)
+            )
+            .then(
+                () => next(),
+                error => Promise.reject(error)
+            )
+    }
+    else
+        next();
 });
 
 PostSchema.pre('remove', function(next) {
@@ -64,8 +79,19 @@ PostSchema.pre('remove', function(next) {
     return CommentRepository.removeComments({_id: {$in : commentsId}})
         .then(
             () => {
-                if(tagsId.length !== 0)
+                if(!tagsId.length)
                     return TagRepository.deleleRefPostByParams({_id: {$in: tagsId}}, this.id)
+            },
+            error => Promise.reject(error)
+        )
+        .then(
+            () => UserRepository.getOneUserByParams({_id: this.author.id}),
+            error => Promise.reject(error)
+        )
+        .then(
+            user => {
+                user.postCount--;
+                return UserRepository.saveOneUser(user);
             },
             error => Promise.reject(error)
         )
@@ -86,7 +112,7 @@ const PostRepository = mongoose.model('posts', PostSchema);
 PostRepository.getPostsByParams = (findParams) => {
     return PostRepository.find(findParams, null, {sort: '-createdAt'})
         .then(posts => {
-            if(posts.length === 0) return Promise.reject(constants.ERRORS.NO_FOUND_POSTS);
+            if(!posts.length) return Promise.reject(constants.ERRORS.NO_FOUND_POSTS);
             if(posts.errors) return Promise.reject(posts.errors);
             return posts;
         });
@@ -102,7 +128,7 @@ PostRepository.getPostsPaginationByParams = (findParams, aggregate) => {
 
     return request
         .then(posts => {
-            if(posts.length === 0) return Promise.reject(constants.ERRORS.NO_FOUND_POSTS);
+            if(!posts.length) return Promise.reject(constants.ERRORS.NO_FOUND_POSTS);
             if(posts.errors) return Promise.reject(posts.errors);
             return posts;
         })

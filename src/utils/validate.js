@@ -3,6 +3,16 @@ const serialize = require('./serialize').Serialize;
 const constants = require('../constants');
 
 function Validate(){
+    this.checkValidate = (params, nameMethod) => {
+        let error;
+        switch(nameMethod){
+            case constants.VALIDATE_TYPE.BY_USERNAME:
+                return this.byUsername();
+            case constants.VALIDATE_TYPE.BY_TOKEN:
+                error = this.byToken(params).error;
+        }
+        if(error) this.sendError(error);
+    },
     this.byId = (id) => {
         const schema = {
             id: Joi.string().min(24).max(24).required(),
@@ -100,7 +110,7 @@ function Validate(){
                 res.send([]);
                 break;
 
-            case constants.ERRORS.NO_FOUND_FOLLOWS:
+            case constants.ERRORS.NO_FOUND_FOLLOWERS:
                 res.send({followers: [], count: 0});
                 break;
             case constants.ERRORS.NO_FOUND_FEED:

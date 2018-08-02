@@ -74,11 +74,15 @@ function Serialize(){
             }
         }
     },
-    this.getFollower = user => {
+    this.getFollower = (user) => {
         return {
             name: user.name,
             bio: user.bio,
             image: user.image,
+            following: user.following,
+            followers: user.followers.length,
+            favorites: user.favorites.length,
+            post: user.postCount
         }
     },
     this.getComment = (comment) => {

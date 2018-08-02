@@ -5,10 +5,14 @@ const serialize = require('../utils/serialize').Serialize;
 const generate = require('../utils/genarateToken').Generate;
 const bcrypt = require('bcrypt-nodejs');
 
-function UserController(){
-    this.getUserByToken = (req, res) => {
+class UserController {
+    constructor(){
+
+    }
+
+    getUserByToken(req, res){
         const token = req.headers.authorization;
-        let {error} = validate.byToken(token);
+        const {error} = validate.byToken(token);
         if(error) return validate.sendError(constants.ERRORS.INVALID_TOKEN, res);
 
         UserRepository.getOneUserByParams({token})
@@ -17,9 +21,10 @@ function UserController(){
                 error => {throw error}
             )
             .catch(e => validate.sendError(e, res));
-    },
-    this.registerUser = (req, res) => {
-        let {error} = validate.byRegister(req.body);
+    }
+
+    registerUser(req, res) {
+        const {error} = validate.byRegister(req.body);
         if(error) return validate.sendError(error, res);
 
         UserRepository.getOneUserByParams({email: req.body.email})
@@ -51,9 +56,10 @@ function UserController(){
                 error => {throw error}
             )
             .catch(e => validate.sendError(e, res));
-    },
-    this.loginUser = (req, res) => { 
-        let {error} = validate.byLogin(req.body, res);
+    }
+
+    loginUser(req, res) { 
+        const {error} = validate.byLogin(req.body, res);
         if(error) return validate.sendError(error, res);
 
         UserRepository.getOneUserByParams({email: req.body.email})
@@ -67,7 +73,6 @@ function UserController(){
                     else {
                         throw constants.ERRORS.INVALID_CREDENTIALS;
                     }
-                    
                 },
                 error => {throw error}
             )
@@ -79,11 +84,12 @@ function UserController(){
                 error => {throw error}
             )
             .catch(e => validate.sendError(e, res));
-    },
-    this.saveUser = (req, res) => { 
+    }
+    
+    saveUserSettings(req, res) { 
         const token = req.headers.authorization;
         const settingsUser = serialize.getSetting(req.body.user);
-        let {error} = validate.byUpdateUser(settingsUser);
+        const {error} = validate.byUpdateUser(settingsUser);
         if(error) return validate.sendError(error, res);
 
         UserRepository.getOneUserByParams({email: settingsUser.email})
@@ -120,6 +126,27 @@ function UserController(){
             )
             .catch(e => validate.sendError(e, res));
     }
+
+
+    removeFavoriteFromUsers(findParams){
+        return UserRepository.getUsersByParams(findParams)
+            .then(
+                users => {
+                    users = users.map(user => {
+                        user.favorites.pull(findParams.favorites);
+                        return user;
+                    });
+                    return UserRepository.saveAllUsers(users, users.length);
+                },
+                error => {
+                    if(error === constants.ERRORS.NO_FOUND_USER)
+                        return constants.MESSAGE.SUCCESSFULLY_REMOVED_FAVORITE 
+                    throw error
+                }
+            )
+            .then(message => message)
+            .catch(e => Promise.reject(e))
+    }
 }
 
-module.exports = new UserController;
+module.exports = new UserController();

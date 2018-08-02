@@ -1,4 +1,5 @@
 const constants = require('../constants');
+const PostRepository = require('./postRepository');
 
 const mongoose = require('mongoose');
 const url = "mongodb://127.0.0.1:27017/node";
@@ -19,25 +20,34 @@ const UserSchema = new mongoose.Schema({
     createdAt: {type: Date, default: Date.now},
     updatedAt: {type: Date, default: Date.now},
     bio: {type: String, default: ''},
-    image: {type: String, default: 'http://getdrawings.com/img/user-silhouette-icon-3.png'},
+    image: {type: String, default: ''},
     token: {type: String, default: generate.token()},
-    follows: [{
+    following: {type: Boolean, required: false},
+    followings: [{ //ты подписался на других
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'users'
+    }],
+    followers: [{ //это подписаны на тебя
         type: mongoose.Schema.Types.ObjectId,
         ref: 'users'
     }],
     favorites: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'posts'
-    }]
+    }],
+    postCount: {type: Number, default: 0}
 },
 {
     versionKey: false
 });
 
-UserSchema.pre('findOne', function() {
-    this.populate('follows');
+UserSchema.pre('findOne', function(next) {
+    this.populate('followers');
+    this.populate('followings');
     this.populate('favorites');
+    next();
 });
+
 
 UserSchema.pre('findOneAndUpdate', function(next) {
     this.update({}, {updatedAt: new Date()});
@@ -113,16 +123,10 @@ UserRepository.updateOneUser = (findParams, user) => {
 * @param {String, ObjectId} token 
 * @return {Bool} true or false or error
 */
-UserRepository.getFollowFlag = (token, id) => {
+UserRepository.getOneFollowingFlag = (token, id) => {
     return UserRepository.getOneUserByParams({token})
         .then( 
-            currentUser => {
-                return currentUser.follows.some(el => {
-                    if(el.id === id)
-                        return true;
-                    return false;
-                })
-            },
+            currentUser => currentUser.followings.some(el => el.id === id),
             error => Promise.reject(error)
         )
 }
@@ -136,33 +140,13 @@ UserRepository.saveOneUser = (user) => {
         });
 }
 
-UserRepository.removeFavoriteFromUsers = (findParams) => {
-    return UserRepository.getUsersByParams(findParams)
-        .then(
-            users => {
-                users = users.map(user => {
-                    user.favorites.pull(findParams.favorites);
-                    return user;
-                });
-                return UserRepository.saveAllUsers(users, users.length);
-            },
-            error => {
-                if(error === constants.ERRORS.NO_FOUND_USER)
-                    return constants.MESSAGE.SUCCESSFULLY_REMOVED_FAVORITE 
-                throw error
-            }
-        )
-        .then(message => message)
-        .catch(e => Promise.reject(e))
-}
-
 UserRepository.saveAllUsers = (users, length) => {
-    if(length === 0)
+    if(!length)
         return constants.MESSAGE.SUCCESSFULLY_REMOVED_FAVORITE;
     let user = users.pop();
     return UserRepository.saveOneUser(user)
         .then(
-            user => UserRepository.saveAllUsers(users, --length),
+            () => UserRepository.saveAllUsers(users, --length),
             error => Promise.reject(error)
         )
 }

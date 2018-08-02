@@ -1,26 +1,22 @@
-const PostRepository = require('../repository/postRepository');
 const TagRepository = require('../repository/tagRepository');
 const constants = require('../constants');
 const validate = require('../utils/validate').Validate;
-const serialize = require('../utils/serialize').Serialize;
-const _ = require('lodash');
 
-function TagController(){
-    this.getPopularTags = (req, res) => {
-
+class TagController {
+    
+    getPopularTags(req, res) {
         TagRepository.getPopularTagsByParams({})
             .then(
                 tags => {
-                    let result = [];
-                    result = tags.map(tag => tag.text);
+                    let result = tags.map(tag => tag.text);
                     res.send(result);
                 },
                 error =>  {throw error}
             )
             .catch(e => validate.sendError(e, res))
-    },
+    }
 
-    this.saveTagsByPostId = (tags, postId) => {
+    saveTagsByPostId(tags, postId) {
         let ids = [];
 
         return TagRepository.getTagsByParams({post: postId})
@@ -74,7 +70,6 @@ function TagController(){
             )
             .catch(e => validate.sendError(e, res))
     }
-
 }
 
-module.exports = new TagController;
+module.exports = new TagController();

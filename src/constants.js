@@ -10,7 +10,8 @@ const NO_FOUND_USER = "No found user";
 const NO_FOUND_POST = "No found post";
 const NO_FOUND_POSTS = "No found posts";
 const NO_FOUND_FAVORITE = "No found favorite";
-const NO_FOUND_FOLLOWS = "No found follows user";
+const NO_FOUND_FOLLOWERS = "No found follower users";
+const NO_FOUND_FOLLOWINGS = "No found following users";
 const NO_FOUND_COMMENT = "No found comment";
 const NO_FOUND_COMMENTS = "No found comments";
 const NO_FOUND_TAG = "No found tag";
@@ -29,7 +30,8 @@ const ERRORS = {
     NO_FOUND_POST,
     NO_FOUND_POSTS,
     NO_FOUND_FAVORITE,
-    NO_FOUND_FOLLOWS,
+    NO_FOUND_FOLLOWERS,
+    NO_FOUND_FOLLOWINGS,
     NO_POST_OWNER,
     NO_FOUND_COMMENT,
     NO_FOUND_COMMENTS,
@@ -65,7 +67,7 @@ const MESSAGE = {
     SUCCESSFULLY_LOGIN
 }
 
-const ADD_FOLLOW = "ADD_FOLLOW";
+const ADD_FOLLOWER = "ADD_FOLLOWER";
 const DELETE_FOLLOW = "DELETE_FOLLOW";
 const ADD_FAVORITE = "ADD_FAVORITE";
 const DELETE_FAVORITE = "DELETE_FAVORITE";
@@ -76,7 +78,7 @@ const GET_POSTS_BY_AUTHOR = "GET_POSTS_BY_AUTHOR";
 const GET_POSTS_BY_FAVORITED = "GET_POSTS_BY_FAVORITED";
 
 const OPERATION = {
-    ADD_FOLLOW,
+    ADD_FOLLOWER,
     DELETE_FOLLOW,
     ADD_FAVORITE,
     DELETE_FAVORITE,
@@ -87,9 +89,17 @@ const OPERATION = {
     GET_POSTS_BY_AUTHOR
 }
 
+const BY_USERNAME = 'BY_USERNAME';
+const BY_TOKEN = 'BY_TOKEN';
+
+const VALIDATE_TYPE = {
+    BY_USERNAME,
+    BY_TOKEN
+}
 
 
 module.exports.COLLECTIONS = COLLECTIONS;
 module.exports.ERRORS = ERRORS;
 module.exports.MESSAGE = MESSAGE;
 module.exports.OPERATION = OPERATION;
+module.exports.VALIDATE_TYPE = VALIDATE_TYPE;
