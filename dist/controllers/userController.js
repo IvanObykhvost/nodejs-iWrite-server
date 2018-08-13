@@ -94,23 +94,26 @@ class UserController {
             }), error => { throw error; })
                 .catch(e => this._validate.sendError(e, res));
         };
+        this.removeFavoriteFromUsers = (params) => {
+            return this._userRepository.findUsers(params)
+                .then(users => {
+                users = users.map(user => {
+                    user.favorites = user.favorites.filter(el => {
+                        if (el.id.toString() !== params.favorites.id.toString())
+                            return el;
+                    });
+                    return user;
+                });
+                return this._userRepository.saveAllusers(users);
+            }, error => {
+                if (error === constants_1.constants.errors.no_found_user)
+                    error = constants_1.constants.message.successfully_removed_favorite;
+                return error;
+            });
+        };
         this._userRepository = new userRepository_1.UserRepository();
         this._validate = new validate_1.Validate();
         this._serialize = new serialize_1.Serialize();
-    }
-    removeFavoriteFromUsers(params) {
-        return this._userRepository.findUsers(params)
-            .then(users => {
-            users = users.map(user => {
-                user.favorites = user.favorites.filter(el => el !== params.favorites); //нужно посмотреть
-                return user;
-            });
-            return this._userRepository.saveAllUser(users);
-        }, error => {
-            if (error === constants_1.constants.errors.no_found_user)
-                error = constants_1.constants.message.successfully_removed_favorite;
-            throw error;
-        });
     }
 }
 exports.UserController = UserController;

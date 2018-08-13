@@ -126,20 +126,23 @@ export class UserController{
             .catch(e => this._validate.sendError(e, res));
     }
 
-    public removeFavoriteFromUsers(params: any){
+    public removeFavoriteFromUsers = (params: any) => {
         return this._userRepository.findUsers(params)
             .then(
                 users => {
                     users = users.map(user => {
-                        user.favorites = user.favorites.filter(el => el !== params.favorites); //нужно посмотреть
+                        user.favorites = user.favorites.filter(el => {
+                            if(el.id.toString() !== params.favorites.id.toString())
+                                return el;
+                        });
                         return user;
                     });
-                    return this._userRepository.saveAllUser(users);
+                    return this._userRepository.saveAllusers(users);
                 },
                 error => {
                     if(error === constants.errors.no_found_user)
                         error = constants.message.successfully_removed_favorite;
-                    throw error;
+                    return error;
                 }
             )
     }

@@ -34,6 +34,9 @@ class TagRepository {
                 .then(this.returnOneTag, this.catchError);
         };
         this.saveAllTags = (tags) => {
+            return tags.forEach(tag => this.saveOneTag(tag));
+        };
+        this.insertAllTags = (tags) => {
             return this._model.insertMany(tags)
                 .then(this.returnTags, this.catchError);
         };
@@ -63,7 +66,7 @@ class TagRepository {
         };
         this.returnTags = (tags) => {
             if (tags.length === 0)
-                return Promise.reject(constants_1.constants.errors.no_found_comment);
+                return Promise.reject(constants_1.constants.errors.no_found_tag);
             return Promise.resolve(tags);
         };
         this.catchError = (error) => Promise.reject(error);

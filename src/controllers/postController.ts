@@ -189,6 +189,7 @@ export class PostController{
         let currentPost: IPost;
         let newPost = this._postRepository.createNewPost({
             ...body,
+            tags: [],
             author: currentUser.id
         })
 
@@ -223,7 +224,7 @@ export class PostController{
             .then(post => {
                 if(post.author.token !== currentUser.token)
                     throw constants.errors.no_post_owner;
-                return this._tagController.saveTagsByPostId(body.tags, post._id);
+                return this._tagController.saveTagsByPostId(body.tags, post);
             })
             .then(tagsId => {
                 updatePost.tags = [];
@@ -250,10 +251,12 @@ export class PostController{
                 if(post.author.id !== currentUser.id)
                     throw constants.errors.no_post_owner;
                 currentPost = post;
-                return this._userController.removeFavoriteFromUsers({favorites: postId});
+                return this._userController.removeFavoriteFromUsers({favorites: post._id});
             })
-            .then(() => this._postRepository.removeOnePost(currentPost))
-            .then(() => res.send(this._serialize.success(constants.message.successfully_removed_post)))
+            .then(() => {
+                return this._postRepository.removeOnePost(currentPost)})
+            .then(() => {
+                res.send(this._serialize.success(constants.message.successfully_removed_post))})
             .catch(e => this._validate.sendError(e, res));
     }
 
@@ -289,6 +292,7 @@ export class PostController{
                     currentPost = post.toObject();
                     currentUser.favorites = currentUser.favorites.filter(el => el.id !== post.id);
                 }
+                Object.assign(currentPost, {id: post.id});
                 return this._postRepository.saveOnePost(post);
             })
             .then(() => this._userRepository.saveOneUser(currentUser))

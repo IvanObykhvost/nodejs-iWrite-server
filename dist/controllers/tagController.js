@@ -17,12 +17,12 @@ class TagController {
                 .catch(e => this._validate.sendError(e, res));
         };
         this.saveTagsByPostId = (tags, post) => {
-            let ids;
+            let ids = [];
             return this._tagRepository.findTags({ posts: post._id })
                 .then(resultTags => {
                 resultTags = resultTags.map(tag => {
                     tag.popular--;
-                    tag.posts = tag.posts.filter(el => el.id !== post.id);
+                    tag.posts = tag.posts.filter(el => el.toString() !== post.id.toString());
                     return tag;
                 });
                 return this._tagRepository.saveAllTags(resultTags);
@@ -33,7 +33,7 @@ class TagController {
             })
                 .then(() => this._tagRepository.findTags({ text: { $in: tags } }))
                 .then(resultTags => {
-                let text;
+                let text = [];
                 resultTags = resultTags.map(tag => {
                     tag.popular++;
                     ids.push(tag);
@@ -51,13 +51,17 @@ class TagController {
                 .then(() => {
                 const newTags = tags.map(tag => this._tagRepository.createNewTag({
                     text: tag,
-                    post: post._id
+                    posts: post._id
                 }));
-                return this._tagRepository.saveAllTags(newTags);
+                return this._tagRepository.insertAllTags(newTags);
             })
                 .then(resultTags => {
                 resultTags.map(tag => ids.push(tag));
                 return ids;
+            }, error => {
+                if (error === constants_1.constants.errors.no_found_tag)
+                    return ids;
+                throw error;
             });
         };
         this.deleteRefPostInTag = (params, postId) => {

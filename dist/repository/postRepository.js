@@ -19,7 +19,7 @@ class PostRepository {
                 .then(this.returnOnePost, this.catchError);
         };
         this.findPosts = (params) => {
-            return this._model.find(params)
+            return this._model.find(params, null, { sort: '-createdAt' })
                 .then(this.returnPosts, this.catchError);
         };
         this.updateOnePost = (params, currentPost) => {

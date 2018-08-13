@@ -11,11 +11,11 @@ class ProfileRoutes {
         this.routes();
     }
     routes() {
-        this.router.get('/', this._profileController.getProfile);
-        this.router.get('/followers', this._profileController.getFollowers);
-        this.router.get('/following', this._profileController.getFollowing);
-        this.router.post('/follow', this._authController.authentication, this._profileController.follow);
-        this.router.delete('/unfollow', this._authController.authentication, this._profileController.unfollow);
+        this.router.get('/:username/', this._profileController.getProfile);
+        this.router.get('/:username/followers', this._profileController.getFollowers);
+        this.router.get('/:username/following', this._profileController.getFollowing);
+        this.router.post('/:username/follow', this._authController.authentication, this._profileController.follow);
+        this.router.delete('/:username/unfollow', this._authController.authentication, this._profileController.unfollow);
     }
 }
 exports.ProfileRoutes = ProfileRoutes;

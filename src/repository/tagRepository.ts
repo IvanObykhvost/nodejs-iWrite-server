@@ -50,7 +50,7 @@ export class TagRepository{
     }
 
     public saveOneTag = (tag: ITag) => {
-        return tag.save()
+        return (tag as Document).save()
             .then(
                 this.returnOneTag,
                 this.catchError
@@ -58,6 +58,10 @@ export class TagRepository{
     }
 
     public saveAllTags = (tags: ITag[]) => {
+        return tags.forEach(tag => this.saveOneTag(tag));
+    }
+
+    public insertAllTags = (tags: ITag[]) => {
         return this._model.insertMany(tags)
             .then(
                 this.returnTags,
@@ -92,7 +96,7 @@ export class TagRepository{
     }
 
     private returnTags = (tags: Document[]) => {
-        if(tags.length === 0) return Promise.reject(constants.errors.no_found_comment);
+        if(tags.length === 0) return Promise.reject(constants.errors.no_found_tag);
         return Promise.resolve(tags as Array<ITag>);
     }
 

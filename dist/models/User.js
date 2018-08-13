@@ -51,5 +51,13 @@ UserSchema.pre('findOne', function (next) {
     this.populate('favorites');
     next();
 });
+UserSchema.post('find', function (error, doc, next) {
+    doc.populate('favorites');
+    next();
+});
+UserSchema.pre('findOneAndUpdate', function (next) {
+    this.update({}, { updatedAt: new Date() });
+    next();
+});
 exports.default = mongoose_1.model('users', UserSchema);
 //# sourceMappingURL=User.js.map

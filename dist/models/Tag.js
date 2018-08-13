@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = require("mongoose");
 const TagSchema = new mongoose_1.Schema({
     text: { type: String, required: true },
-    post: [{
+    posts: [{
             type: mongoose_1.Schema.Types.ObjectId,
             ref: 'posts'
         }],

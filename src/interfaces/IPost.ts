@@ -4,7 +4,7 @@ import { IComment } from "./IComment";
 import { ITag } from "./ITag";
 
 export interface IPost extends Document{
-    id?: string;
+    id: string;
     title: string;
     topic: string;
     message: string;

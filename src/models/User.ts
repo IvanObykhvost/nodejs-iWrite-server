@@ -51,6 +51,16 @@ UserSchema.pre('findOne', function(next) {
     this.populate('followers');
     this.populate('favorites');
     next();
-})
+});
+
+UserSchema.post('find', function(error, doc, next) {
+    doc.populate('favorites');
+    next();
+});
+
+UserSchema.pre('findOneAndUpdate', function(next) {
+    this.update({}, {updatedAt: new Date()});
+    next();
+});
 
 export default model('users', UserSchema);

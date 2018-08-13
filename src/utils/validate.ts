@@ -30,7 +30,7 @@ export class Validate{
 
     public byRegister(user: object){
         const schema = {
-            username: Joi.string().required().error(() => constants.errors.property_is_empty('Username')),
+            name: Joi.string().required().error(() => constants.errors.property_is_empty('Username')),
             email: Joi.string().email().required(),
             password: Joi.string().regex(/^[a-zA-Z0-9]{3,30}$/).min(6).required()
         }
@@ -55,7 +55,7 @@ export class Validate{
     public byUpdateUser(user: object) {
         const schema = {
             image: Joi.string().trim().allow(""),
-            username: Joi.string().required().error(() => constants.errors.property_is_empty('Username')),
+            name: Joi.string().required().error(() => constants.errors.property_is_empty('Username')),
             email: Joi.string().email().required().error(() => constants.errors.property_is_empty('Email')),
             bio: Joi.string().trim().allow("")
         }
@@ -102,8 +102,27 @@ export class Validate{
 
     public sendError(error: any, res: Response){
         let message = error;
+        if(error.details) {
+            message = error.details[0].message;
+        }
+        else if(error.message) {
+            message = error.message.substring(error.message.indexOf('[')+1, error.message.indexOf(']'));
+        }
 
         switch(message){
+            case constants.errors.no_found_followers:
+                res.send({followers: [], count: 0});
+                break;
+
+            case constants.errors.no_found_feed:
+            case constants.errors.no_found_post:
+                res.send({posts: [], count: 0});
+                break;
+
+            case constants.errors.no_found_comment:
+            case constants.errors.no_found_tag:
+                res.send([]);
+                break;
 
             default:
                 res.send(this._serialize.error(message));

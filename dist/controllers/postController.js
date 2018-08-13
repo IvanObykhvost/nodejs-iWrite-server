@@ -152,7 +152,7 @@ class PostController {
             if (error)
                 return this._validate.sendError(error, res);
             let currentPost;
-            let newPost = this._postRepository.createNewPost(Object.assign({}, body, { author: currentUser.id }));
+            let newPost = this._postRepository.createNewPost(Object.assign({}, body, { tags: [], author: currentUser.id }));
             // currentUser.postCount++;
             // this._userRepository.saveOneUser(currentUser)
             this._postRepository.saveOnePost(newPost)
@@ -183,7 +183,7 @@ class PostController {
                 .then(post => {
                 if (post.author.token !== currentUser.token)
                     throw constants_1.constants.errors.no_post_owner;
-                return this._tagController.saveTagsByPostId(body.tags, post._id);
+                return this._tagController.saveTagsByPostId(body.tags, post);
             })
                 .then(tagsId => {
                 updatePost.tags = [];
@@ -207,10 +207,14 @@ class PostController {
                 if (post.author.id !== currentUser.id)
                     throw constants_1.constants.errors.no_post_owner;
                 currentPost = post;
-                return this._userController.removeFavoriteFromUsers({ favorites: postId });
+                return this._userController.removeFavoriteFromUsers({ favorites: post._id });
             })
-                .then(() => this._postRepository.removeOnePost(currentPost))
-                .then(() => res.send(this._serialize.success(constants_1.constants.message.successfully_removed_post)))
+                .then(() => {
+                return this._postRepository.removeOnePost(currentPost);
+            })
+                .then(() => {
+                res.send(this._serialize.success(constants_1.constants.message.successfully_removed_post));
+            })
                 .catch(e => this._validate.sendError(e, res));
         };
         //Favorite
@@ -242,6 +246,7 @@ class PostController {
                     currentPost = post.toObject();
                     currentUser.favorites = currentUser.favorites.filter(el => el.id !== post.id);
                 }
+                Object.assign(currentPost, { id: post.id });
                 return this._postRepository.saveOnePost(post);
             })
                 .then(() => this._userRepository.saveOneUser(currentUser))

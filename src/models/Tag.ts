@@ -2,7 +2,7 @@ import { Schema, model } from "mongoose";
 
 const TagSchema = new Schema({
     text: {type: String, required: true},
-    post:  [{
+    posts:  [{
         type: Schema.Types.ObjectId,
         ref: 'posts'
     }],
@@ -11,6 +11,7 @@ const TagSchema = new Schema({
 {
     versionKey: false
 });
+
 
 
 export default model('tags', TagSchema);

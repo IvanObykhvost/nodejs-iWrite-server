@@ -29,14 +29,14 @@ export class TagController{
     }
 
     public saveTagsByPostId = (tags: string[], post: IPost) => {
-        let ids: ITag[];
+        let ids: ITag[] = [];
 
         return this._tagRepository.findTags({posts: post._id})
             .then(
                 resultTags => {
                     resultTags = resultTags.map(tag => {
                         tag.popular--;
-                        tag.posts = tag.posts.filter(el => el.id !== post.id);
+                        tag.posts = tag.posts.filter(el => el.toString() !== post.id.toString());
                         return tag;
                     });
                     return this._tagRepository.saveAllTags(resultTags);
@@ -50,7 +50,7 @@ export class TagController{
             .then(() => this._tagRepository.findTags({text: {$in: tags}}))
             .then(
                 resultTags =>{
-                    let text: Array<string>;
+                    let text: Array<string> = [];
                     resultTags = resultTags.map(tag => {
                         tag.popular++;
                         ids.push(tag);
@@ -68,18 +68,25 @@ export class TagController{
                 }
             )
             .then(() => {
-                const newTags = tags.map(tag => 
-                    this._tagRepository.createNewTag({
-                        text: tag,
-                        post: post._id
-                    })
-                );
-                return this._tagRepository.saveAllTags(newTags);
+                    const newTags = tags.map(tag => 
+                        this._tagRepository.createNewTag({
+                            text: tag,
+                            posts: post._id
+                        })
+                    );
+                    return this._tagRepository.insertAllTags(newTags);
             })
-            .then(resultTags => {
-                resultTags.map(tag => ids.push(tag))
-                return ids;
-            })
+            .then(
+                resultTags => {
+                    resultTags.map(tag => ids.push(tag))
+                    return ids;
+                }, 
+                error => {
+                    if(error === constants.errors.no_found_tag)
+                        return ids;
+                    throw error;
+                }
+            )
     }
 
     public deleteRefPostInTag = (params: object, postId: string) => {

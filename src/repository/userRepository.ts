@@ -41,6 +41,13 @@ export class UserRepository{
             )
     }
 
+   
+
+    public saveAllusers = (users: any[]) => {
+        const models = users as Document[];
+        return models.forEach(doc => this.saveOneUser(doc));
+    }
+
     public saveOneUser = (user: any) => {
         return (user as Document).save()
             .then(
@@ -48,19 +55,11 @@ export class UserRepository{
                 this.catchError
             )
     }
-    
-    public saveAllUser = (users: IUser[]) => {
-        return this._model.insertMany(users)
-        .then(
-            this.findUsers,
-            this.catchError
-        )
-    }
 
     public getOneFollowingFlag = (token: string | undefined, id: string) => {
         return this.findOneUser({token})
             .then(
-                user => user.followings.some(el => el.id === id),
+                user => user.followings.some(el => el.id.toString() === id),
                 this.catchError
             )
     }

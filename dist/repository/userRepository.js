@@ -23,17 +23,17 @@ class UserRepository {
             return this._model.findOneAndUpdate(params, user, { new: true })
                 .then(this.returnOneUser, this.catchError);
         };
+        this.saveAllusers = (users) => {
+            const models = users;
+            return models.forEach(doc => this.saveOneUser(doc));
+        };
         this.saveOneUser = (user) => {
             return user.save()
                 .then(this.returnOneUser, this.catchError);
         };
-        this.saveAllUser = (users) => {
-            return this._model.insertMany(users)
-                .then(this.findUsers, this.catchError);
-        };
         this.getOneFollowingFlag = (token, id) => {
             return this.findOneUser({ token })
-                .then(user => user.followings.some(el => el.id === id), this.catchError);
+                .then(user => user.followings.some(el => el.id.toString() === id), this.catchError);
         };
         this.returnOneUser = (user) => {
             if (!user)

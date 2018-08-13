@@ -41,7 +41,7 @@ export class PostRepository{
     }
 
     public findPosts = (params: object) => {
-        return this._model.find(params)
+        return this._model.find(params, null, {sort: '-createdAt'})
             .then(
                 this.returnPosts,
                 this.catchError
