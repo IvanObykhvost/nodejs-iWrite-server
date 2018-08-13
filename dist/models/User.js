@@ -37,10 +37,10 @@ const UserSchema = new mongoose_1.Schema({
             type: mongoose_1.Schema.Types.ObjectId,
             ref: 'users'
         }],
-    // favorites: [{
-    //     type: Schema.Types.ObjectId,
-    //     ref: 'posts'
-    // }],
+    favorites: [{
+            type: mongoose_1.Schema.Types.ObjectId,
+            ref: 'posts'
+        }],
     postCount: { type: Number, default: 0 }
 }, {
     versionKey: false
@@ -48,6 +48,7 @@ const UserSchema = new mongoose_1.Schema({
 UserSchema.pre('findOne', function (next) {
     this.populate('followings');
     this.populate('followers');
+    this.populate('favorites');
     next();
 });
 exports.default = mongoose_1.model('users', UserSchema);

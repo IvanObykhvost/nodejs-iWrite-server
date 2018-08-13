@@ -13,10 +13,10 @@ const PostSchema = new mongoose_1.Schema({
     favouritesCount: { type: Number, default: 0 },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
-    // tags:  [{
-    //     type: Schema.Types.ObjectId,
-    //     ref: 'tags'
-    // }],
+    tags: [{
+            type: mongoose_1.Schema.Types.ObjectId,
+            ref: 'tags'
+        }],
     author: {
         type: mongoose_1.Schema.Types.ObjectId,
         ref: 'users'
@@ -32,13 +32,13 @@ PostSchema.pre('find', function () {
     this.populate('author');
     this.populate('favorites');
     this.populate('comments');
-    // this.populate('tags');
+    this.populate('tags');
 });
 PostSchema.pre('findOne', function () {
     this.populate('author');
     this.populate('favorites');
     this.populate('comments');
-    // this.populate('tags');
+    this.populate('tags');
 });
 PostSchema.pre('findOneAndUpdate', function (next) {
     this.update({}, { updatedAt: new Date() });

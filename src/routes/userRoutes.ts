@@ -19,7 +19,6 @@ export class UserRoutes {
         this.router.put('/', this._authController.authentication, this._userController.saveUserSetting);
         this.router.post('/register', this._userController.registerUser);
         this.router.post('/login', this._userController.login)
-
     }
 }
 

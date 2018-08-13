@@ -126,8 +126,22 @@ export class UserController{
             .catch(e => this._validate.sendError(e, res));
     }
 
-    public addNewUser(req: Request, res: Response){
-
+    public removeFavoriteFromUsers(params: any){
+        return this._userRepository.findUsers(params)
+            .then(
+                users => {
+                    users = users.map(user => {
+                        user.favorites = user.favorites.filter(el => el !== params.favorites); //нужно посмотреть
+                        return user;
+                    });
+                    return this._userRepository.saveAllUser(users);
+                },
+                error => {
+                    if(error === constants.errors.no_found_user)
+                        error = constants.message.successfully_removed_favorite;
+                    throw error;
+                }
+            )
     }
 
 }

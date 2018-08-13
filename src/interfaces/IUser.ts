@@ -10,7 +10,7 @@ export interface IUser extends Document{
     token: string;
     createdAt: Date;
     updatedAt: Date;
-    following: Boolean;
+    following: boolean;
     followings: Array<IUser>;
     followers: Array<IUser>;
     favorites: Array<IUser>;

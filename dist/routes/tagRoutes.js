@@ -9,9 +9,8 @@ class TagRoutes {
         this.routes();
     }
     routes() {
-        this.router.get('/', this._tagController.getPopularTags);
-        // this.router.route('/')
-        //     .get(this._tagController.getPopularTags)
+        this.router.route('/')
+            .get(this._tagController.getPopularTags);
     }
 }
 exports.TagRoutes = TagRoutes;

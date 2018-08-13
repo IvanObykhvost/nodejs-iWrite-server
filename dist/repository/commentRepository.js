@@ -4,6 +4,10 @@ const Comment_1 = require("../models/Comment");
 const constants_1 = require("../constants");
 class CommentRepository {
     constructor() {
+        this.createNewModel = (params) => {
+            const model = new this._model(params);
+            return model;
+        };
         this.findOneComment = (params) => {
             return this._model.findOne(params)
                 .then(this.returnOneComment, this.catchError);
@@ -36,10 +40,6 @@ class CommentRepository {
         };
         this.catchError = (error) => Promise.reject(error);
         this._model = Comment_1.default;
-    }
-    createNewModel(params) {
-        const model = new this._model(params);
-        return model;
     }
 }
 exports.CommentRepository = CommentRepository;

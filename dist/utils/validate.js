@@ -19,6 +19,25 @@ class Validate {
             };
             return Joi.validate(comment, schema);
         };
+        this.byPost = (post) => {
+            const schema = {
+                title: Joi.string().required().error(() => constants_1.constants.errors.property_is_empty('Title')),
+                topic: Joi.string().required().error(() => constants_1.constants.errors.property_is_empty('Topic')),
+                message: Joi.string().required().error(() => constants_1.constants.errors.property_is_empty('Message')),
+                tags: Joi.array()
+            };
+            return Joi.validate(post, schema);
+        };
+        this.byUpdatePost = (post) => {
+            const schema = {
+                id: Joi.string().required(),
+                title: Joi.string().required().error(() => constants_1.constants.errors.property_is_empty('Title')),
+                topic: Joi.string().required().error(() => constants_1.constants.errors.property_is_empty('Topic')),
+                message: Joi.string().required().error(() => constants_1.constants.errors.property_is_empty('Message')),
+                tags: Joi.array()
+            };
+            return Joi.validate(post, schema);
+        };
         this._serialize = new serialize_1.Serialize();
     }
     byId(id) {
@@ -48,6 +67,12 @@ class Validate {
         const schema = {
             email: Joi.string().email().required(),
             password: Joi.string().regex(/^[a-zA-Z0-9]{3,30}$/).required()
+        };
+        return Joi.validate(user, schema);
+    }
+    byUsername(user) {
+        const schema = {
+            name: Joi.string().required().error(() => constants_1.constants.errors.property_is_empty('Name'))
         };
         return Joi.validate(user, schema);
     }

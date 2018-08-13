@@ -18,7 +18,7 @@ export class AuthController{
 
         this._userRepository.findOneUser({token})
             .then(user => {
-                    req.body.currentUser = {...user};
+                    req.body.currentUser = user;
                     next();
             })
             .catch(e => this._validate.sendError(e, res));

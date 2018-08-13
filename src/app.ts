@@ -10,6 +10,7 @@ import UserRoutes from "./routes/userRoutes";
 import PostRoutes from "./routes/postRoutes";
 import CommentRoutes from "./routes/commentRoutes";
 import TagRoutes from "./routes/tagRoutes";
+import ProfileRoutes from "./routes/profileRoutes";
 
 class App {
     public app: express.Application;
@@ -36,8 +37,10 @@ class App {
         // const router: express.Router = express.Router();
 
         this.app.use('/api/user', UserRoutes);
-        // this.app.use('/api/post/:id/comments', CommentRoutes);
-        // this.app.use('/api/tags', TagRoutes);
+        this.app.use('/api/post', PostRoutes);
+        this.app.use('/api/post/:id/comments', CommentRoutes);
+        this.app.use('/api/tags', TagRoutes);
+        this.app.use('/api/profile/:username', ProfileRoutes);
     }
 }
 

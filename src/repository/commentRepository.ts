@@ -10,7 +10,7 @@ export class CommentRepository{
         this._model = CommentModel;
     }
 
-    public createNewModel(params: any){
+    public createNewModel = (params: any) => {
         const model = new this._model(params);
         return <IComment>model;
     }

@@ -8,6 +8,10 @@ const option = {
     useNewUrlParser: true
 };
 const userRoutes_1 = require("./routes/userRoutes");
+const postRoutes_1 = require("./routes/postRoutes");
+const commentRoutes_1 = require("./routes/commentRoutes");
+const tagRoutes_1 = require("./routes/tagRoutes");
+const profileRoutes_1 = require("./routes/profileRoutes");
 class App {
     constructor() {
         this.app = express();
@@ -29,8 +33,10 @@ class App {
     routes() {
         // const router: express.Router = express.Router();
         this.app.use('/api/user', userRoutes_1.default);
-        // this.app.use('/api/post/:id/comments', CommentRoutes);
-        // this.app.use('/api/tags', TagRoutes);
+        this.app.use('/api/post', postRoutes_1.default);
+        this.app.use('/api/post/:id/comments', commentRoutes_1.default);
+        this.app.use('/api/tags', tagRoutes_1.default);
+        this.app.use('/api/profile/:username', profileRoutes_1.default);
     }
 }
 exports.default = new App().app;

@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const validate_1 = require("../utils/validate");
 const serialize_1 = require("../utils/serialize");
 const constants_1 = require("../constants");
-const tagRepository_1 = require("repository/tagRepository");
+const tagRepository_1 = require("../repository/tagRepository");
 class TagController {
     constructor() {
         this.getPopularTags = (req, res) => {
@@ -16,13 +16,13 @@ class TagController {
             })
                 .catch(e => this._validate.sendError(e, res));
         };
-        this.saveTagsByPostId = (tags, postId) => {
+        this.saveTagsByPostId = (tags, post) => {
             let ids;
-            return this._tagRepository.findTags({ posts: postId })
+            return this._tagRepository.findTags({ posts: post._id })
                 .then(resultTags => {
                 resultTags = resultTags.map(tag => {
                     tag.popular--;
-                    tag.posts = tag.posts.filter(el => el.id !== postId);
+                    tag.posts = tag.posts.filter(el => el.id !== post.id);
                     return tag;
                 });
                 return this._tagRepository.saveAllTags(resultTags);
@@ -36,9 +36,9 @@ class TagController {
                 let text;
                 resultTags = resultTags.map(tag => {
                     tag.popular++;
-                    ids.push(tag.id);
+                    ids.push(tag);
                     text.push(tag.text);
-                    // tag.posts.push(postId);
+                    tag.posts.push(post._id);
                     return tag;
                 });
                 tags = tags.filter(tag => !text.includes(tag));
@@ -51,12 +51,12 @@ class TagController {
                 .then(() => {
                 const newTags = tags.map(tag => this._tagRepository.createNewTag({
                     text: tag,
-                    post: postId
+                    post: post._id
                 }));
                 return this._tagRepository.saveAllTags(newTags);
             })
                 .then(resultTags => {
-                resultTags.map(tag => ids.push(tag.id));
+                resultTags.map(tag => ids.push(tag));
                 return ids;
             });
         };
@@ -68,6 +68,7 @@ class TagController {
                     tag.posts = tag.posts.filter(el => el.id !== postId);
                     return tag;
                 });
+                return this._tagRepository.saveAllTags(tags);
             });
         };
         this._validate = new validate_1.Validate();

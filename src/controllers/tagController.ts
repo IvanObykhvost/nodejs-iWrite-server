@@ -2,7 +2,9 @@ import { Request, Response } from "express";
 import { Validate } from "../utils/validate";
 import { Serialize } from "../utils/serialize";
 import { constants } from "../constants";
-import { TagRepository } from "repository/tagRepository";
+import { TagRepository } from "../repository/tagRepository";
+import { IPost } from "interfaces/IPost";
+import { ITag } from "interfaces/ITag";
 
 export class TagController{
     private _validate: Validate;
@@ -26,15 +28,15 @@ export class TagController{
             .catch(e => this._validate.sendError(e, res))
     }
 
-    public saveTagsByPostId = (tags: string[], postId: string) => {
-        let ids: string[];
+    public saveTagsByPostId = (tags: string[], post: IPost) => {
+        let ids: ITag[];
 
-        return this._tagRepository.findTags({posts: postId})
+        return this._tagRepository.findTags({posts: post._id})
             .then(
                 resultTags => {
                     resultTags = resultTags.map(tag => {
                         tag.popular--;
-                        tag.posts = tag.posts.filter(el => el.id !== postId);
+                        tag.posts = tag.posts.filter(el => el.id !== post.id);
                         return tag;
                     });
                     return this._tagRepository.saveAllTags(resultTags);
@@ -51,9 +53,9 @@ export class TagController{
                     let text: Array<string>;
                     resultTags = resultTags.map(tag => {
                         tag.popular++;
-                        ids.push(tag.id);
+                        ids.push(tag);
                         text.push(tag.text);
-                        // tag.posts.push(postId);
+                        tag.posts.push(post._id);
                         return tag;
                     });
                     tags = tags.filter(tag => !text.includes(tag));
@@ -69,13 +71,13 @@ export class TagController{
                 const newTags = tags.map(tag => 
                     this._tagRepository.createNewTag({
                         text: tag,
-                        post: postId
+                        post: post._id
                     })
                 );
                 return this._tagRepository.saveAllTags(newTags);
             })
             .then(resultTags => {
-                resultTags.map(tag => ids.push(tag.id))
+                resultTags.map(tag => ids.push(tag))
                 return ids;
             })
     }
@@ -87,7 +89,8 @@ export class TagController{
                     tag.popular--;
                     tag.posts = tag.posts.filter(el => el.id !== postId )
                     return tag;
-                })
+                });
+                return this._tagRepository.saveAllTags(tags);
             })
     }
 }

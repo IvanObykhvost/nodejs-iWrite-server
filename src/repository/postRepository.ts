@@ -2,6 +2,7 @@ import { Model, Document } from "mongoose";
 import PostModel from "../models/Post";
 import { constants } from "../constants";
 import { IPost } from "interfaces/IPost";
+import { IAggregate } from "interfaces/IAggregate";
 
 
 export class PostRepository{
@@ -11,18 +12,35 @@ export class PostRepository{
         this._model = PostModel;
     }
 
-    public findOnePost(params: object) {
-        return this._model.findOne(params)
+    public createNewPost(params: any){
+        const model = new this._model(params);
+        return <IPost>model;
+    }
+
+    public findPostsWithPagination = (params: object, aggregate: IAggregate) => {
+        const request = this._model
+            .find(params)
+            .sort('-createdAt')
+            .skip(aggregate.offset)
+            .limit(aggregate.limit)
+            .exec();
+
+        return Promise.resolve(request)
             .then(
-                post => {
-                    if(!post) return Promise.reject(constants.errors.no_found_post);
-                    return Promise.resolve(<IPost>post);
-                },
+                this.returnPosts,
                 this.catchError
             )
     }
 
-    public findPosts(params: object){
+    public findOnePost = (params: object) => {
+        return this._model.findOne(params)
+            .then(
+                this.returnOnePost,
+                this.catchError
+            )
+    }
+
+    public findPosts = (params: object) => {
         return this._model.find(params)
             .then(
                 this.returnPosts,
@@ -30,8 +48,24 @@ export class PostRepository{
             )
     }
 
-    public saveOnePost(currentUser: Document){
-        return currentUser.save()
+    public updateOnePost = (params: object, currentPost: any) => {
+        return this._model.findOneAndUpdate(params, currentPost, {new: true})
+            .then(
+                this.returnOnePost,
+                this.catchError
+            )
+    }
+
+    public saveOnePost = (currentPost: Document) => {
+        return currentPost.save()
+            .then(
+                this.returnOnePost,
+                this.catchError
+            )
+    }
+
+    public removeOnePost = (currentPost: Document) => {
+        return currentPost.remove()
             .then(
                 this.returnOnePost,
                 this.catchError

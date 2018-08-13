@@ -10,14 +10,14 @@ export class UserRepository{
         this._model = UserModel;
     }
 
-    public createNewModel(params: any){
+    public createNewModel = (params: any) => {
         const model: Document = new this._model(params);
         let user = <IUser>model;
         user.password = bcrypt.hashSync(user.password);
         return user;
     }
 
-    public findOneUser(params: object) {
+    public findOneUser = (params: object) => {
         return this._model.findOne(params)
             .then(
                 this.returnOneUser,
@@ -25,7 +25,15 @@ export class UserRepository{
             )
     }
 
-    public updateOneUser(params: object, user: object){
+    public findUsers = (params: object) => {
+        return this._model.find(params)
+            .then(
+                this.returnUsers,
+                this.catchError
+            )
+    }
+
+    public updateOneUser = (params: object, user: object) => {
         return this._model.findOneAndUpdate(params, user, {new: true})
             .then(
                 this.returnOneUser,
@@ -33,10 +41,26 @@ export class UserRepository{
             )
     }
 
-    public saveOneUser(user: any){
+    public saveOneUser = (user: any) => {
         return (user as Document).save()
             .then(
                 this.returnOneUser,
+                this.catchError
+            )
+    }
+    
+    public saveAllUser = (users: IUser[]) => {
+        return this._model.insertMany(users)
+        .then(
+            this.findUsers,
+            this.catchError
+        )
+    }
+
+    public getOneFollowingFlag = (token: string | undefined, id: string) => {
+        return this.findOneUser({token})
+            .then(
+                user => user.followings.some(el => el.id === id),
                 this.catchError
             )
     }
@@ -44,6 +68,11 @@ export class UserRepository{
     private returnOneUser = (user: Document | null) => {
         if(!user) return Promise.reject(constants.errors.no_found_user);
         return Promise.resolve(<IUser>user);
+    }
+
+    private returnUsers = (users: Document[]) => {
+        if(users.length === 0) return Promise.reject(constants.errors.no_found_user);
+        return Promise.resolve(users as IUser[]);
     }
 
     private catchError = (error: any) => Promise.reject(error)

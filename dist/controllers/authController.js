@@ -11,7 +11,7 @@ class AuthController {
                 return this._validate.sendError(error, res);
             this._userRepository.findOneUser({ token })
                 .then(user => {
-                req.body.currentUser = Object.assign({}, user);
+                req.body.currentUser = user;
                 next();
             })
                 .catch(e => this._validate.sendError(e, res));

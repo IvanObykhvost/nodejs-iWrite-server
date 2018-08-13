@@ -36,10 +36,10 @@ const UserSchema: Schema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'users'
     }],
-    // favorites: [{
-    //     type: Schema.Types.ObjectId,
-    //     ref: 'posts'
-    // }],
+    favorites: [{
+        type: Schema.Types.ObjectId,
+        ref: 'posts'
+    }],
     postCount: {type: Number, default: 0}
 },
 {
@@ -49,6 +49,7 @@ const UserSchema: Schema = new Schema({
 UserSchema.pre('findOne', function(next) {
     this.populate('followings');
     this.populate('followers');
+    this.populate('favorites');
     next();
 })
 

@@ -4,6 +4,10 @@ const Tag_1 = require("../models/Tag");
 const constants_1 = require("../constants");
 class TagRepository {
     constructor() {
+        this.createNewTag = (params) => {
+            const model = new this._model(params);
+            return model;
+        };
         this.getPopularTags = () => {
             const tags = this._model
                 .aggregate([{
@@ -64,10 +68,6 @@ class TagRepository {
         };
         this.catchError = (error) => Promise.reject(error);
         this._model = Tag_1.default;
-    }
-    createNewTag(params) {
-        const model = new this._model(params);
-        return model;
     }
 }
 exports.TagRepository = TagRepository;

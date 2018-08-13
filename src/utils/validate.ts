@@ -45,6 +45,13 @@ export class Validate{
         return Joi.validate(user, schema);
     }
 
+    public byUsername(user: object) {
+        const schema = {
+            name: Joi.string().required().error(() => constants.errors.property_is_empty('Name'))
+        }
+        return Joi.validate(user, schema);
+    }
+
     public byUpdateUser(user: object) {
         const schema = {
             image: Joi.string().trim().allow(""),
@@ -71,6 +78,28 @@ export class Validate{
         return Joi.validate(comment, schema);
     }
     
+
+    public byPost = (post: object) => {
+        const schema = {
+            title: Joi.string().required().error(() => constants.errors.property_is_empty('Title')),
+            topic: Joi.string().required().error(() => constants.errors.property_is_empty('Topic')),
+            message: Joi.string().required().error(() => constants.errors.property_is_empty('Message')),
+            tags: Joi.array()
+        }
+        return Joi.validate(post, schema);
+    }
+
+    public byUpdatePost = (post: object) => {
+        const schema = {
+            id: Joi.string().required(),
+            title: Joi.string().required().error(() => constants.errors.property_is_empty('Title')),
+            topic: Joi.string().required().error(() => constants.errors.property_is_empty('Topic')),
+            message: Joi.string().required().error(() => constants.errors.property_is_empty('Message')),
+            tags: Joi.array()
+        }
+        return Joi.validate(post, schema);
+    }
+
     public sendError(error: any, res: Response){
         let message = error;
 

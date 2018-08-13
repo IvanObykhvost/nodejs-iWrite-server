@@ -10,7 +10,7 @@ export class TagRepository{
         this._model = TagModel;
     }
 
-    public createNewTag(params: any){
+    public createNewTag = (params: any) => {
         const model = new this._model(params);
         return <ITag>model;
     }

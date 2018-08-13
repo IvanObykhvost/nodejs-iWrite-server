@@ -98,7 +98,19 @@ class UserController {
         this._validate = new validate_1.Validate();
         this._serialize = new serialize_1.Serialize();
     }
-    addNewUser(req, res) {
+    removeFavoriteFromUsers(params) {
+        return this._userRepository.findUsers(params)
+            .then(users => {
+            users = users.map(user => {
+                user.favorites = user.favorites.filter(el => el !== params.favorites); //нужно посмотреть
+                return user;
+            });
+            return this._userRepository.saveAllUser(users);
+        }, error => {
+            if (error === constants_1.constants.errors.no_found_user)
+                error = constants_1.constants.message.successfully_removed_favorite;
+            throw error;
+        });
     }
 }
 exports.UserController = UserController;
