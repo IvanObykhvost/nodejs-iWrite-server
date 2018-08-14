@@ -11,6 +11,7 @@ import { IAggregate } from "interfaces/IAggregate";
 import { UserRepository } from "../repository/userRepository";
 import { TagRepository } from "../repository/tagRepository";
 import { ITag } from "interfaces/ITag";
+import { CommentRepository } from "../repository/commentRepository";
 
 export class PostController{
     private _validate: Validate;
@@ -18,6 +19,7 @@ export class PostController{
     private _postRepository: PostRepository;
     private _userRepository: UserRepository;
     private _tagRepository: TagRepository;
+    private _commentRepository: CommentRepository;
     private _tagController: TagController;
     private _userController: UserController;
     
@@ -27,6 +29,7 @@ export class PostController{
         this._postRepository = new PostRepository();
         this._userRepository = new UserRepository();
         this._tagRepository = new TagRepository();
+        this._commentRepository = new CommentRepository();
         this._tagController = new TagController();
         this._userController = new UserController();
     }
@@ -254,12 +257,29 @@ export class PostController{
                 return this._userController.removeFavoriteFromUsers({favorites: post._id});
             })
             .then(() => {
-                return this._postRepository.removeOnePost(currentPost)})
+                return this.removeOnePost(currentPost)})
             .then(() => {
                 res.send(this._serialize.success(constants.message.successfully_removed_post))})
             .catch(e => this._validate.sendError(e, res));
     }
 
+    private removeOnePost = (currentPost: IPost) => {
+        const commentsId = currentPost.comments.map(comment => comment.id);
+        let tagsId = currentPost.tags.map(tag => tag.id);
+        return this._commentRepository.removeComments({_id: {$in : commentsId}})
+            .then(() => {
+                    if(tagsId.length !== 0)
+                        return this._tagController.deleteRefPostInTag({_id: {$in: tagsId}}, currentPost.id.toString());
+                },
+            )
+            .then(() => this._userRepository.findOneUser({_id: currentPost.author.id}))
+            .then(user => {
+                    // user.postCount--;
+                    //return UserRepository.saveOneUser(user);
+                }
+            )
+            .then(() => this._postRepository.removeOnePost(currentPost))
+    }
     //Favorite
     public addFavorited = (req: Request, res: Response) => {
         this.addOrDeleteFavorited(req, res, constants.operation.add_favorited);

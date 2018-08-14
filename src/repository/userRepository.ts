@@ -43,10 +43,20 @@ export class UserRepository{
 
    
 
-    public saveAllusers = (users: any[]) => {
-        const models = users as Document[];
-        return models.forEach(doc => this.saveOneUser(doc));
-    }
+    // public saveAllusers = (users: any[]) => {
+    //     const models = users as Document[];
+    //     return models.forEach(doc => this.saveOneUser(doc));
+    // }
+
+    public saveAllusers = (users: IUser[], length: number): any => {
+        if(length === 0)
+            return length;
+        const user = users.pop();
+        return this.saveOneUser(user)
+            .then(
+                () => this.saveAllusers(users, users.length)
+            )
+    }   
 
     public saveOneUser = (user: any) => {
         return (user as Document).save()

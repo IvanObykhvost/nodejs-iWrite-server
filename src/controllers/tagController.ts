@@ -62,8 +62,10 @@ export class TagController{
                     return this._tagRepository.saveAllTags(resultTags);
                 },
                 error => {
-                    if(error === constants.errors.no_found_tag)
-                        return tags;
+                    if(error === constants.errors.no_found_tag){
+                        const result: ITag[] = [];
+                        return result;
+                    }
                     throw error;
                 }
             )
@@ -94,7 +96,7 @@ export class TagController{
             .then(tags => {
                 tags = tags.map(tag => {
                     tag.popular--;
-                    tag.posts = tag.posts.filter(el => el.id !== postId )
+                    tag.posts = tag.posts.filter(el => el.id.toString() !== postId )
                     return tag;
                 });
                 return this._tagRepository.saveAllTags(tags);

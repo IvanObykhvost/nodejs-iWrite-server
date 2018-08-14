@@ -49,7 +49,7 @@ export class TagRepository{
             )
     }
 
-    public saveOneTag = (tag: ITag) => {
+    public saveOneTag = (tag: any) => {
         return (tag as Document).save()
             .then(
                 this.returnOneTag,
@@ -57,9 +57,19 @@ export class TagRepository{
             )
     }
 
-    public saveAllTags = (tags: ITag[]) => {
-        return tags.forEach(tag => this.saveOneTag(tag));
-    }
+    public saveAllTags = (tags: ITag[], length: number): any => {
+        if(length === 0)
+            return length;
+        const tag = tags.pop();
+        return this.saveOneTag(tag)
+            .then(
+                () => this.saveAllTags(tags, tags.length)
+            )
+    } 
+
+    // public saveAllTags = (tags: ITag[]) => {
+    //     return tags.forEach(tag => this.saveOneTag(tag));
+    // }
 
     public insertAllTags = (tags: ITag[]) => {
         return this._model.insertMany(tags)

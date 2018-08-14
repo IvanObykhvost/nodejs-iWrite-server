@@ -8,6 +8,7 @@ const constants_1 = require("../constants");
 const userController_1 = require("./userController");
 const userRepository_1 = require("../repository/userRepository");
 const tagRepository_1 = require("../repository/tagRepository");
+const commentRepository_1 = require("../repository/commentRepository");
 class PostController {
     constructor() {
         this.getAllPosts = (req, res) => {
@@ -210,12 +211,27 @@ class PostController {
                 return this._userController.removeFavoriteFromUsers({ favorites: post._id });
             })
                 .then(() => {
-                return this._postRepository.removeOnePost(currentPost);
+                return this.removeOnePost(currentPost);
             })
                 .then(() => {
                 res.send(this._serialize.success(constants_1.constants.message.successfully_removed_post));
             })
                 .catch(e => this._validate.sendError(e, res));
+        };
+        this.removeOnePost = (currentPost) => {
+            const commentsId = currentPost.comments.map(comment => comment.id);
+            let tagsId = currentPost.tags.map(tag => tag.id);
+            return this._commentRepository.removeComments({ _id: { $in: commentsId } })
+                .then(() => {
+                if (tagsId.length !== 0)
+                    return this._tagController.deleteRefPostInTag({ _id: { $in: tagsId } }, currentPost.id.toString());
+            })
+                .then(() => this._userRepository.findOneUser({ _id: currentPost.author.id }))
+                .then(user => {
+                // user.postCount--;
+                //return UserRepository.saveOneUser(user);
+            })
+                .then(() => this._postRepository.removeOnePost(currentPost));
         };
         //Favorite
         this.addFavorited = (req, res) => {
@@ -258,6 +274,7 @@ class PostController {
         this._postRepository = new postRepository_1.PostRepository();
         this._userRepository = new userRepository_1.UserRepository();
         this._tagRepository = new tagRepository_1.TagRepository();
+        this._commentRepository = new commentRepository_1.CommentRepository();
         this._tagController = new tagController_1.TagController();
         this._userController = new userController_1.UserController();
     }
