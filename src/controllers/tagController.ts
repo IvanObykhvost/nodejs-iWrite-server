@@ -36,8 +36,8 @@ export class TagController{
             .then(
                 resultTags => {
                     resultTags = resultTags.map(tag => {
-                        tag.popular--;
                         tag.posts = tag.posts.filter(el => el.toString() !== post.id.toString());
+                        tag.popular = tag.posts.length;
                         return tag;
                     });
                     return this._tagRepository.saveAllTags(resultTags);
@@ -53,10 +53,10 @@ export class TagController{
                 resultTags =>{
                     let text: Array<string> = [];
                     resultTags = resultTags.map(tag => {
-                        tag.popular++;
                         ids.push(tag);
                         text.push(tag.text);
                         tag.posts.push(post._id);
+                        tag.popular = tag.posts.length;
                         return tag;
                     });
                     tags = tags.filter(tag => !text.includes(tag));
@@ -95,8 +95,8 @@ export class TagController{
         return this._tagRepository.findTags(params)
             .then(tags => {
                 tags = tags.map(tag => {
-                    tag.popular--;
-                    tag.posts = tag.posts.filter(el => el.toString() !== postId)
+                    tag.posts = tag.posts.filter(el => el.toString() !== postId);
+                    tag.popular = tag.posts.length;
                     return tag;
                 });
                 return this._tagRepository.saveAllTags(tags);
