@@ -57,14 +57,15 @@ export class TagRepository{
             )
     }
 
-    public saveAllTags = (tags: ITag[], length: number): any => {
-        if(length === 0)
-            return length;
+    public saveAllTags = (tags: ITag[]): any => {
+        if(tags.length === 0){
+            return tags.length;
+        }
         const tag = tags.pop();
         return this.saveOneTag(tag)
-            .then(
-                () => this.saveAllTags(tags, tags.length)
-            )
+            .then(() => this.saveAllTags(tags))
+       
+        
     } 
 
     // public saveAllTags = (tags: ITag[]) => {

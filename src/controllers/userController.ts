@@ -137,7 +137,7 @@ export class UserController{
                         });
                         return user;
                     });
-                    return this._userRepository.saveAllusers(users, users.length);
+                    return this._userRepository.saveAllusers(users);
                 },
                 error => {
                     if(error === constants.errors.no_found_user)

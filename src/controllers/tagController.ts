@@ -29,9 +29,10 @@ export class TagController{
     }
 
     public saveTagsByPostId = (tags: string[], post: IPost) => {
+        
         let ids: ITag[] = [];
 
-        return this._tagRepository.findTags({posts: post._id})
+        return this._tagRepository.findTags({posts: post.id})
             .then(
                 resultTags => {
                     resultTags = resultTags.map(tag => {
@@ -63,8 +64,7 @@ export class TagController{
                 },
                 error => {
                     if(error === constants.errors.no_found_tag){
-                        const result: ITag[] = [];
-                        return result;
+                        return tags;
                     }
                     throw error;
                 }
@@ -96,7 +96,7 @@ export class TagController{
             .then(tags => {
                 tags = tags.map(tag => {
                     tag.popular--;
-                    tag.posts = tag.posts.filter(el => el.id.toString() !== postId )
+                    tag.posts = tag.posts.filter(el => el.toString() !== postId)
                     return tag;
                 });
                 return this._tagRepository.saveAllTags(tags);

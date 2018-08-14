@@ -34,8 +34,16 @@ class TagRepository {
                 .then(this.returnOneTag, this.catchError);
         };
         this.saveAllTags = (tags) => {
-            return tags.forEach(tag => this.saveOneTag(tag));
+            if (tags.length === 0) {
+                return tags.length;
+            }
+            const tag = tags.pop();
+            return this.saveOneTag(tag)
+                .then(() => this.saveAllTags(tags));
         };
+        // public saveAllTags = (tags: ITag[]) => {
+        //     return tags.forEach(tag => this.saveOneTag(tag));
+        // }
         this.insertAllTags = (tags) => {
             return this._model.insertMany(tags)
                 .then(this.returnTags, this.catchError);

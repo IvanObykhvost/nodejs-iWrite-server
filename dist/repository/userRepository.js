@@ -24,8 +24,11 @@ class UserRepository {
                 .then(this.returnOneUser, this.catchError);
         };
         this.saveAllusers = (users) => {
-            const models = users;
-            return models.forEach(doc => this.saveOneUser(doc));
+            if (users.length === 0)
+                return;
+            const user = users.pop();
+            return this.saveOneUser(user)
+                .then(() => this.saveAllusers(users));
         };
         this.saveOneUser = (user) => {
             return user.save()
