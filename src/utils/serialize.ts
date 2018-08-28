@@ -1,6 +1,8 @@
 import { IUser } from "../interfaces/IUser";
 import { IComment } from "interfaces/IComment";
 import { IPost } from "interfaces/IPost";
+import { IStory } from "interfaces/IStory";
+import { ICategory } from "interfaces/ICategory";
 
 export class Serialize{
 
@@ -74,6 +76,36 @@ export class Serialize{
         }
     }
 
+    public getStory = (story: IStory) => {
+        return {
+            id: story.id,
+            title: story.title,
+            shortDescription: story.shortDescription,
+            longDescription: story.longDescription,
+            disableComments: story.disableComments,
+            disableRatings: story.disableRatings,
+            status: story.status,
+           
+            categories: story.categories.map(category => {return {"id": category.id, "text": category.text}}),
+            favorited: story.favorited,
+            favouritesCount: story.favouritesCount,
+            createdAt: story.createdAt,
+            updatedAt: story.updatedAt,
+            author: this.getAuthor(story.author)
+        }
+    }
+
+    public getCategory = (category: ICategory) => {
+        return {
+            id: category.id,
+
+            //no such field in BD butt front needs
+            selected: false,
+
+            text: category.text
+        }
+    }
+
     public setUpdatePost = (post: any) =>{
         return {
             id: post.id,
@@ -81,6 +113,48 @@ export class Serialize{
             topic: post.topic,
             message: post.message,
             tags: post.tags,
+        }
+    }
+
+    public setNewStory = (story: any, currentUser: any) =>{
+        story.categories = story.categories.filter((category:any) => category.selected);
+        story.categories =  story.categories.map((category: any) => {
+            if(category.selected){
+                return {"_id": category.id}
+            }
+        });
+
+        return {
+            id: story.id,
+            title: story.title,
+            shortDescription: story.shortDescription,
+            longDescription: story.longDescription,
+            disableComments: story.disableComments,
+            disableRatings: story.disableRatings,
+            status: story.status,           
+            categories: story.categories,
+            author: currentUser.id
+        }
+    }
+
+    public setUpdateStory = (story: any) =>{
+        story.categories = story.categories.filter((category:any) => category.selected);
+        story.categories =  story.categories.map((category: any) => {
+            if(category.selected){
+                return {"_id": category.id}
+            }
+        });
+
+        return {
+            id: story.id,
+            title: story.title,
+            shortDescription: story.shortDescription,
+            longDescription: story.longDescription,
+            disableComments: story.disableComments,
+            disableRatings: story.disableRatings,
+            status: story.status,
+            updatedAt: Date.now,   
+            categories: story.categories,           
         }
     }
 

@@ -28,6 +28,15 @@ class Validate {
             };
             return Joi.validate(post, schema);
         };
+        this.byStory = (story) => {
+            const schema = {
+                title: Joi.string().required().error(() => constants_1.constants.errors.property_is_empty('Title')),
+                shortDescription: Joi.string().required().error(() => constants_1.constants.errors.property_is_empty('Short Description')),
+                longDescription: Joi.string().required().error(() => constants_1.constants.errors.property_is_empty('Long Description')),
+                status: Joi.string().required().error(() => constants_1.constants.errors.property_is_empty('Status')),
+            };
+            return Joi.validate(story, schema);
+        };
         this.byUpdatePost = (post) => {
             const schema = {
                 id: Joi.string().required(),

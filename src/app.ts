@@ -10,6 +10,8 @@ import UserRoutes from "./routes/userRoutes";
 import PostRoutes from "./routes/postRoutes";
 import TagRoutes from "./routes/tagRoutes";
 import ProfileRoutes from "./routes/profileRoutes";
+import StoryRoutes from "./routes/storyRoutes";
+import CategoryRoutes from "./routes/categoryRoutes";
 
 class App {
     public app: express.Application;
@@ -39,6 +41,8 @@ class App {
         this.app.use('/api/post', PostRoutes);
         this.app.use('/api/tags', TagRoutes);
         this.app.use('/api/profile', ProfileRoutes);
+        this.app.use('/api/story', StoryRoutes);
+        this.app.use('/api/categories', CategoryRoutes);
     }
 }
 

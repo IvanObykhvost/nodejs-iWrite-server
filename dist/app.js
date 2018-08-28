@@ -11,6 +11,8 @@ const userRoutes_1 = require("./routes/userRoutes");
 const postRoutes_1 = require("./routes/postRoutes");
 const tagRoutes_1 = require("./routes/tagRoutes");
 const profileRoutes_1 = require("./routes/profileRoutes");
+const storyRoutes_1 = require("./routes/storyRoutes");
+const categoryRoutes_1 = require("./routes/categoryRoutes");
 class App {
     constructor() {
         this.app = express();
@@ -35,6 +37,8 @@ class App {
         this.app.use('/api/post', postRoutes_1.default);
         this.app.use('/api/tags', tagRoutes_1.default);
         this.app.use('/api/profile', profileRoutes_1.default);
+        this.app.use('/api/story', storyRoutes_1.default);
+        this.app.use('/api/categories', categoryRoutes_1.default);
     }
 }
 exports.default = new App().app;

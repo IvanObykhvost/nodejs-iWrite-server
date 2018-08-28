@@ -89,6 +89,16 @@ export class Validate{
         return Joi.validate(post, schema);
     }
 
+    public byStory = (story: object) => {
+        const schema = {
+            title: Joi.string().required().error(() => constants.errors.property_is_empty('Title')),
+            shortDescription: Joi.string().required().error(() => constants.errors.property_is_empty('Short Description')),
+            longDescription: Joi.string().required().error(() => constants.errors.property_is_empty('Long Description')),
+            status: Joi.string().required().error(() => constants.errors.property_is_empty('Status')),
+        }
+        return Joi.validate(story, schema);
+    }
+
     public byUpdatePost = (post: object) => {
         const schema = {
             id: Joi.string().required(),

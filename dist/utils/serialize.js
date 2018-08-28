@@ -66,6 +66,31 @@ class Serialize {
                 author: this.getAuthor(post.author)
             };
         };
+        this.getStory = (story) => {
+            return {
+                id: story.id,
+                title: story.title,
+                shortDescription: story.shortDescription,
+                longDescription: story.longDescription,
+                disableComments: story.disableComments,
+                disableRatings: story.disableRatings,
+                status: story.status,
+                categories: story.categories.map(category => { return { "id": category.id, "text": category.text }; }),
+                favorited: story.favorited,
+                favouritesCount: story.favouritesCount,
+                createdAt: story.createdAt,
+                updatedAt: story.updatedAt,
+                author: this.getAuthor(story.author)
+            };
+        };
+        this.getCategory = (category) => {
+            return {
+                id: category.id,
+                //no such field in BD butt front needs
+                selected: false,
+                text: category.text
+            };
+        };
         this.setUpdatePost = (post) => {
             return {
                 id: post.id,
@@ -75,6 +100,57 @@ class Serialize {
                 tags: post.tags,
             };
         };
+        this.setNewStory = (story, currentUser) => {
+            story.categories = story.categories.filter((category) => category.selected);
+            story.categories = story.categories.map((category) => {
+                if (category.selected) {
+                    return { "_id": category.id };
+                }
+            });
+            return {
+                id: story.id,
+                title: story.title,
+                shortDescription: story.shortDescription,
+                longDescription: story.longDescription,
+                disableComments: story.disableComments,
+                disableRatings: story.disableRatings,
+                status: story.status,
+                categories: story.categories,
+                author: currentUser.id
+            };
+        };
+        this.setUpdateStory = (story) => {
+            story.categories = story.categories.filter((category) => category.selected);
+            story.categories = story.categories.map((category) => {
+                if (category.selected) {
+                    return { "_id": category.id };
+                }
+            });
+            return {
+                id: story.id,
+                title: story.title,
+                shortDescription: story.shortDescription,
+                longDescription: story.longDescription,
+                disableComments: story.disableComments,
+                disableRatings: story.disableRatings,
+                status: story.status,
+                updatedAt: Date.now,
+                categories: story.categories,
+            };
+        };
+        /*public setUpdateStory = (story: any) =>{
+            return {
+                id: story.id,
+                title: story.title,
+                shortDescription: story.shortDescription,
+                longDescription: story.longDescription,
+                disableComments: story.disableComments,
+                disableRatings: story.disableRatings,
+                status: story.status,
+                updatedAt: Date.now,
+                categories: story.categories,
+            }
+        }*/
         this.getCurrentUserFromBody = (body) => {
             let currentUser = body.currentUser;
             delete body.currentUser;
