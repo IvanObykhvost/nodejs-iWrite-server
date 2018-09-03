@@ -44,7 +44,7 @@ export class StoryRepository{
     }
 
     private returnOneStory = (story: Document | null) => {
-        if(!story) return Promise.reject(constants.errors.no_found_post);
+        if(!story) return Promise.reject(constants.errors.no_found_story);
         return Promise.resolve(<IStory>story);
     }   
 

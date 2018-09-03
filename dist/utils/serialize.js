@@ -38,7 +38,9 @@ class Serialize {
                     email: user.email,
                     bio: user.bio,
                     image: user.image,
-                    following: user.following
+                    following: user.following,
+                    followingsCount: user.followings.length,
+                    followersCount: user.followers.length
                 }
             };
         };
@@ -138,19 +140,6 @@ class Serialize {
                 categories: story.categories,
             };
         };
-        /*public setUpdateStory = (story: any) =>{
-            return {
-                id: story.id,
-                title: story.title,
-                shortDescription: story.shortDescription,
-                longDescription: story.longDescription,
-                disableComments: story.disableComments,
-                disableRatings: story.disableRatings,
-                status: story.status,
-                updatedAt: Date.now,
-                categories: story.categories,
-            }
-        }*/
         this.getCurrentUserFromBody = (body) => {
             let currentUser = body.currentUser;
             delete body.currentUser;

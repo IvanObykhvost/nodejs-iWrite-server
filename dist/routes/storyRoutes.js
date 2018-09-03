@@ -5,9 +5,7 @@ const authController_1 = require("../controllers/authController");
 const storyController_1 = require("../controllers/storyController");
 class StoryRoutes {
     constructor() {
-        //this._postController = new PostController();        
         this._authController = new authController_1.AuthController();
-        //this._commentController = new CommentController()
         this._storyController = new storyController_1.StoryController();
         this.router = express_1.Router();
         this.routes();
@@ -17,7 +15,6 @@ class StoryRoutes {
         this.router.route('/:id')
             .get(this._storyController.getOneStory)
             .put(this._authController.authentication, this._storyController.updateStory);
-        //.delete(this._authController.authentication, this._postController.deletePost)
     }
 }
 exports.StoryRoutes = StoryRoutes;

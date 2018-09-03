@@ -1,6 +1,7 @@
 //errors
 const no_found_user = 'No found user';
 const no_found_post = 'No found post';
+const no_found_story = 'No found story';
 const no_found_comment = "No found comment";
 const no_found_tag = "No found tag";
 const no_found_followers = "No found follower users";
@@ -42,6 +43,7 @@ export const constants = {
         no_found_user,
         no_found_comment,
         no_found_post,
+        no_found_story,
         no_found_tag,
         no_found_followers,
         no_found_followings,

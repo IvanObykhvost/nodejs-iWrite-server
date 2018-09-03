@@ -6,7 +6,6 @@ const CategoryRepository_1 = require("../repository/CategoryRepository");
 class CategoryController {
     constructor() {
         this.addRefStoryInCategory = (params, story) => {
-            //return this._categoryRepository.findCategories(params)
             return this._categoryRepository.findCategories(params)
                 .then(categories => {
                 categories = categories.map(category => {
@@ -30,7 +29,7 @@ class CategoryController {
             return this._categoryRepository.findCategories(params);
         };
         this.getAllCategories = (req, res) => {
-            this._categoryRepository.findCategories([{}])
+            this._categoryRepository.findCategories({})
                 .then(categories => res.send({
                 categories: categories.map(category => this._serialize.getCategory(category)),
             }))

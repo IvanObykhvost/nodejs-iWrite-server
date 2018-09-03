@@ -1,16 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const tagController_1 = require("../controllers/tagController");
 const serialize_1 = require("../utils/serialize");
 const validate_1 = require("../utils/validate");
 const constants_1 = require("../constants");
-const userController_1 = require("./userController");
-const userRepository_1 = require("../repository/userRepository");
-const tagRepository_1 = require("../repository/tagRepository");
-const commentRepository_1 = require("../repository/commentRepository");
 const storyRepository_1 = require("../repository/storyRepository");
 const CategoryController_1 = require("../controllers/CategoryController");
-const categoryRepository_1 = require("../repository/categoryRepository");
 class StoryController {
     constructor() {
         this.addNewStory = (req, res) => {
@@ -68,14 +62,7 @@ class StoryController {
         };
         this._validate = new validate_1.Validate();
         this._serialize = new serialize_1.Serialize();
-        //this._postRepository = new PostRepository();
         this._storyRepository = new storyRepository_1.StoryRepository();
-        this._categoryRepository = new categoryRepository_1.CategoryRepository();
-        this._userRepository = new userRepository_1.UserRepository();
-        this._tagRepository = new tagRepository_1.TagRepository();
-        this._commentRepository = new commentRepository_1.CommentRepository();
-        this._tagController = new tagController_1.TagController();
-        this._userController = new userController_1.UserController();
         this._categoryController = new CategoryController_1.CategoryController();
     }
 }

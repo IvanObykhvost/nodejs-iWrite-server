@@ -41,7 +41,6 @@ export class UserRepository{
             )
     }
 
-   
     public saveAllusers = (users: IUser[]): any => {
         if(users.length === 0)
             return;

@@ -45,7 +45,9 @@ export class Serialize{
                 email: user.email,
                 bio: user.bio,
                 image: user.image,
-                following: user.following
+                following: user.following,
+                followingsCount: user.followings.length,
+                followersCount: user.followers.length
             }
         }
     }

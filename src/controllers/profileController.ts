@@ -69,10 +69,14 @@ export class ProfileController{
                     sortUsers[1].followers.push(sortUsers[0]);
                 }
                 else{
-                    sortUsers[0].followings.filter(el => el !== sortUsers[1]);
-                    sortUsers[1].followers.filter(el => el !== sortUsers[0]);
+                    sortUsers[0].followings = sortUsers[0].followings.filter(el => 
+                        el.toString() !== sortUsers[1].id.toString()
+                    );
+                    sortUsers[1].followers = sortUsers[1].followers.filter(el => 
+                        el.toString() !== sortUsers[0].id.toString()
+                    );
                 }
-                return this._userRepository.findUsers(sortUsers);
+                return this._userRepository.saveAllusers(sortUsers);
             })
             .then(() => res.send(constants.message.successfully_signed))
             .catch(e => this._validate.sendError(e, res));

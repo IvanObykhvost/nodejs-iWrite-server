@@ -1,23 +1,11 @@
 import { Request, Response } from "express";
-import { PostRepository } from "../repository/postRepository";
-import { TagController } from "../controllers/tagController";
 import { Serialize } from "../utils/serialize";
 import { Validate } from "../utils/validate";
-import { IPost } from "interfaces/IPost";
 import { IStory } from "interfaces/IStory";
 import { constants } from "../constants";
-import { IUser } from "interfaces/IUser";
-import { UserController } from "./userController";
-import { IAggregate } from "interfaces/IAggregate";
-import { UserRepository } from "../repository/userRepository";
-import { TagRepository } from "../repository/tagRepository";
-import { ITag } from "interfaces/ITag";
-import { CommentRepository } from "../repository/commentRepository";
 import { StoryRepository } from "../repository/storyRepository";
 import { CategoryController } from "../controllers/CategoryController";
-import { CategoryRepository } from "../repository/categoryRepository";
-import { ICategory } from "interfaces/ICategory";
-import { timingSafeEqual } from "crypto";
+
 
 export class StoryController{
     private _validate: Validate;

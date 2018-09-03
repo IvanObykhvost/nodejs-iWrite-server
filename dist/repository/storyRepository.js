@@ -18,7 +18,7 @@ class StoryRepository {
         };
         this.returnOneStory = (story) => {
             if (!story)
-                return Promise.reject(constants_1.constants.errors.no_found_post);
+                return Promise.reject(constants_1.constants.errors.no_found_story);
             return Promise.resolve(story);
         };
         this.catchError = (error) => Promise.reject(error);
