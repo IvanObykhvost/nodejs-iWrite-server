@@ -82,7 +82,6 @@ export class Validate{
     public byPost = (post: object) => {
         const schema = {
             title: Joi.string().required().error(() => constants.errors.property_is_empty('Title')),
-            topic: Joi.string().required().error(() => constants.errors.property_is_empty('Topic')),
             message: Joi.string().required().error(() => constants.errors.property_is_empty('Message')),
             tags: Joi.array()
         }
@@ -103,7 +102,6 @@ export class Validate{
         const schema = {
             id: Joi.string().required(),
             title: Joi.string().required().error(() => constants.errors.property_is_empty('Title')),
-            topic: Joi.string().required().error(() => constants.errors.property_is_empty('Topic')),
             message: Joi.string().required().error(() => constants.errors.property_is_empty('Message')),
             tags: Joi.array()
         }

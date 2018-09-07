@@ -6,7 +6,6 @@ import { ITag } from "./ITag";
 export interface IPost extends Document{
     id: string;
     title: string;
-    topic: string;
     message: string;
     favorited: boolean;
     favouritesCount: number;

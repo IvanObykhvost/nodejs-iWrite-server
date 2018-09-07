@@ -2,7 +2,6 @@ import { Schema, model } from "mongoose";
 
 const PostSchema = new Schema({
     title: {type: String, required: true},
-    topic: {type: String, required: true},
     message: {type: String, required: true},
     favorited: {type: Boolean, default: false},
     favorites: [{

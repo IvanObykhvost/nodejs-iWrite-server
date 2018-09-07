@@ -67,14 +67,14 @@ export class Serialize{
         return {
             id: post.id,
             title: post.title,
-            topic: post.topic,
             message: post.message,
             tags: post.tags.map(tag => tag.text),
             favorited: post.favorited,
             favouritesCount: post.favouritesCount,
             createdAt: post.createdAt,
             updatedAt: post.updatedAt,
-            author: this.getAuthor(post.author)
+            author: this.getAuthor(post.author),
+            commentsCount: post.comments.length
         }
     }
 
@@ -112,7 +112,6 @@ export class Serialize{
         return {
             id: post.id,
             title: post.title,
-            topic: post.topic,
             message: post.message,
             tags: post.tags,
         }

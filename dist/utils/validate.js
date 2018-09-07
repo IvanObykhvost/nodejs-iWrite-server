@@ -22,7 +22,6 @@ class Validate {
         this.byPost = (post) => {
             const schema = {
                 title: Joi.string().required().error(() => constants_1.constants.errors.property_is_empty('Title')),
-                topic: Joi.string().required().error(() => constants_1.constants.errors.property_is_empty('Topic')),
                 message: Joi.string().required().error(() => constants_1.constants.errors.property_is_empty('Message')),
                 tags: Joi.array()
             };
@@ -41,7 +40,6 @@ class Validate {
             const schema = {
                 id: Joi.string().required(),
                 title: Joi.string().required().error(() => constants_1.constants.errors.property_is_empty('Title')),
-                topic: Joi.string().required().error(() => constants_1.constants.errors.property_is_empty('Topic')),
                 message: Joi.string().required().error(() => constants_1.constants.errors.property_is_empty('Message')),
                 tags: Joi.array()
             };
